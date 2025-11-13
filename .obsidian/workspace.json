@@ -1,0 +1,334 @@
+{
+  "main": {
+    "id": "ca3546bdd2f0b3e3",
+    "type": "split",
+    "children": [
+      {
+        "id": "e83533319d279c14",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "389984d230970d3e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Readme.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Readme"
+            }
+          },
+          {
+            "id": "5c21b764f0437e69",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Readme.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Readme"
+            }
+          },
+          {
+            "id": "bbcc057a7262813f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Found usages.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Found usages"
+            }
+          },
+          {
+            "id": "1b56146d4612c3e3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Источники, референсы.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Источники, референсы"
+            }
+          },
+          {
+            "id": "8a169c7ae00499ba",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Лабораторные/Лаб. 1 Работа с контейнерами.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Лаб. 1 Работа с контейнерами"
+            }
+          },
+          {
+            "id": "adb577d9dba0fbe3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Лабораторные/Лаб. 1 Работа с контейнерами.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Лаб. 1 Работа с контейнерами"
+            }
+          },
+          {
+            "id": "655f25dd9a885d4a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Лабораторные/Лаб. 1 Работа с контейнерами.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Лаб. 1 Работа с контейнерами"
+            }
+          },
+          {
+            "id": "c0294d9e0a0d8fb4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Лабораторные/Лаб. 1 Работа с контейнерами.md",
+                "mode": "source",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Лаб. 1 Работа с контейнерами"
+            }
+          },
+          {
+            "id": "aecb0b79708ccbfc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Лабораторные/Лаб. 3 Пайплайны, автоматизация.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Лаб. 3 Пайплайны, автоматизация"
+            }
+          },
+          {
+            "id": "edc976c1dd9f5354",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Лабораторные/Лаб. 1 Варианты.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Лаб. 1 Варианты"
+            }
+          }
+        ],
+        "currentTab": 9
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "2fd266745d8b96fb",
+    "type": "split",
+    "children": [
+      {
+        "id": "9eff8cf28cbfc3d9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "07e5d4f20faccca5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "14796395a00c918f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "c8efc155159bf22d",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 349.5
+  },
+  "right": {
+    "id": "1eb492f9723b4e76",
+    "type": "split",
+    "children": [
+      {
+        "id": "2ea9635f79d7e690",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "61c01d215e9bf86c",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Лабораторные/Лаб. 1 Варианты.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Лаб. 1 Варианты"
+            }
+          },
+          {
+            "id": "2321b3d208c79862",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Лабораторные/Лаб. 1 Варианты.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Лаб. 1 Варианты"
+            }
+          },
+          {
+            "id": "a82844727e158728",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "436161db8e5ac4c9",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "7bd9f413ff07353d",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Лабораторные/Лаб. 1 Варианты.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Лаб. 1 Варианты"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "edc976c1dd9f5354",
+  "lastOpenFiles": [
+    "Лабораторные/Лаб. 1 Работа с контейнерами.md",
+    "Лабораторные/Лаб. 2 Работа с кластерами.md",
+    "Лабораторные/Лаб. 3 Пайплайны, автоматизация.md",
+    "Лабораторные/Лаб. 4 Infrastructure as Code.md",
+    "Лабораторные/Лаб. 1 Варианты.md",
+    "Лекции/Лекция 1. Введение.md",
+    "Лекции/Лекция 2. Развертывание окружения.md",
+    "Лекции/Лекция 3. Контейнеризация.md",
+    "2025-11-14.md",
+    "Untitled.canvas",
+    "Рекомендации.md",
+    "Found usages.md",
+    "Источники, референсы.md",
+    "Readme.md",
+    "License.md",
+    "Лекции",
+    "Лабораторные",
+    "Материалы"
+  ]
+}

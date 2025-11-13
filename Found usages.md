@@ -1,0 +1,1 @@
+База для Лабораторных - https://github.com/dockersamples/example-voting-app
