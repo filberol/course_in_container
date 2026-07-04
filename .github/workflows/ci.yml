@@ -1,0 +1,41 @@
+name: Course in Container CI
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  clojure-formatting:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - name: Setup Clojure tools
+        uses: DeLaGuardo/setup-clojure@13
+        with:
+          cljfmt: 'latest'
+
+      - name: Check formatting
+        run: cljfmt check
+
+  markdown-formatting:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+
+      - name: Run mdl for check markdown format
+        uses: nosborn/github-action-markdown-cli@v3.3.0
+        with:
+          files: .
+          config_file: .markdownlint.yaml
