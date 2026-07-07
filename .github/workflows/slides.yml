@@ -1,0 +1,79 @@
+name: Слайды лекций
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'slides/**'
+      - '.github/workflows/slides.yml'
+  pull_request:
+    paths:
+      - 'slides/**'
+      - '.github/workflows/slides.yml'
+  workflow_dispatch:
+
+jobs:
+  export:
+    name: Лекция ${{ matrix.lecture }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lecture:
+          - '01'
+          - '02'
+          - '03'
+          - '04'
+          - '05'
+          - '06'
+          - '07'
+          - '08'
+          - '09'
+          - '10'
+          - '11'
+          - '12'
+          - '13'
+          - '14'
+          - '15'
+          - '16'
+    defaults:
+      run:
+        working-directory: slides
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: slides/package-lock.json
+
+      - name: Установка зависимостей
+        run: npm ci
+
+      - name: Системные библиотеки для Chromium
+        run: npx playwright install-deps chromium
+
+      - name: Экспорт PDF
+        run: >
+          npx slidev export "lectures/${{ matrix.lecture }}.md"
+          --output "dist/lecture-${{ matrix.lecture }}.pdf"
+          --timeout 180000
+          --wait 1500
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lecture-${{ matrix.lecture }}
+          path: slides/dist/lecture-${{ matrix.lecture }}.pdf
+          if-no-files-found: error
+
+  bundle:
+    name: Общий артефакт со всеми лекциями
+    needs: export
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/upload-artifact/merge@v4
+        with:
+          name: all-lectures
+          pattern: lecture-*
+          delete-merged: false

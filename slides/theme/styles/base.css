@@ -1,0 +1,241 @@
+:root {
+  /* ITMO brandbook palette */
+  --itmo-blue: #0b68fe;        /* Bluetiful, Pantone 2727 C */
+  --itmo-cyan: #00ccff;        /* Capri, Pantone Blue 0821 C */
+  --itmo-orange: #f93f37;      /* Tart Orange — failure modes, warnings */
+  --itmo-yellow: #ffcc33;      /* Honey Yellow — notes, highlights */
+  --itmo-violet: #7f00ff;      /* Violet Color Wheel — rare extra accent */
+
+  /* Derived bluish tones */
+  --itmo-blue-deep: #0a4fc2;
+  --itmo-navy: #06214f;
+  --itmo-ink: #16263d;
+  --itmo-sky: #edf4ff;
+  --itmo-sky-line: #c9ddff;
+  --itmo-cyan-tint: #dff7ff;
+
+  --slidev-theme-primary: var(--itmo-blue);
+  --slidev-controls-foreground: var(--itmo-blue);
+}
+
+.slidev-layout {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: var(--itmo-ink);
+  background: #ffffff;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  padding: 2.6rem 3.1rem 3rem;
+}
+
+/* ---------- headings ---------- */
+
+.slidev-layout h1 {
+  color: var(--itmo-navy);
+  font-weight: 700;
+  font-size: 1.72rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.1rem;
+}
+
+.slidev-layout:not(.itmo-cover):not(.itmo-section) h1::after {
+  content: '';
+  display: block;
+  width: 3.2rem;
+  height: 0.26rem;
+  margin-top: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--itmo-blue), var(--itmo-cyan));
+}
+
+.slidev-layout h2 {
+  color: var(--itmo-blue-deep);
+  font-weight: 700;
+  font-size: 1.18rem;
+  margin: 0.6rem 0 0.4rem;
+}
+
+.slidev-layout h3 {
+  color: var(--itmo-navy);
+  font-weight: 600;
+  font-size: 1.02rem;
+}
+
+.slidev-layout strong {
+  color: var(--itmo-navy);
+  font-weight: 700;
+}
+
+.slidev-layout a {
+  color: var(--itmo-blue);
+  border-bottom: 1px solid var(--itmo-sky-line);
+}
+
+/* ---------- lists ---------- */
+
+.slidev-layout ul {
+  list-style: disc;
+  padding-left: 1.25em;
+}
+
+.slidev-layout ul ul {
+  list-style: circle;
+}
+
+.slidev-layout ol {
+  list-style: decimal;
+  padding-left: 1.25em;
+}
+
+.slidev-layout ul > li::marker {
+  color: var(--itmo-blue);
+}
+
+.slidev-layout ol > li::marker {
+  color: var(--itmo-blue-deep);
+  font-weight: 700;
+}
+
+.slidev-layout li {
+  margin: 0.18rem 0;
+}
+
+/* ---------- tables (decision tables) ---------- */
+
+.slidev-layout table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--itmo-sky-line);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 0.86em;
+  line-height: 1.4;
+  margin: 0.7rem 0;
+}
+
+.slidev-layout th {
+  background: linear-gradient(90deg, var(--itmo-blue), var(--itmo-blue-deep));
+  color: #ffffff;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.45em 0.8em;
+  border: none;
+}
+
+.slidev-layout td {
+  padding: 0.42em 0.8em;
+  border: none;
+  border-top: 1px solid var(--itmo-sky-line);
+}
+
+.slidev-layout tr:nth-child(even) td {
+  background: var(--itmo-sky);
+}
+
+/* ---------- quotes, code ---------- */
+
+.slidev-layout blockquote {
+  background: var(--itmo-sky);
+  border-left: 4px solid var(--itmo-cyan);
+  border-radius: 0 10px 10px 0;
+  padding: 0.55em 1em;
+  color: var(--itmo-navy);
+  font-size: 0.95em;
+}
+
+.slidev-layout blockquote p {
+  margin: 0;
+}
+
+.slidev-layout code:not(pre code) {
+  background: var(--itmo-sky);
+  color: var(--itmo-blue-deep);
+  padding: 0.08em 0.35em;
+  border-radius: 5px;
+  font-size: 0.88em;
+}
+
+.slidev-layout pre.shiki,
+.slidev-layout .slidev-code-wrapper pre {
+  border: 1px solid var(--itmo-sky-line);
+  border-radius: 10px;
+}
+
+/* ---------- mermaid diagrams ---------- */
+
+.slidev-layout .mermaid {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- reusable helper classes ---------- */
+
+/* pill label, e.g. lecture number on the cover */
+.cover-kicker {
+  display: inline-block;
+  padding: 0.28em 1em;
+  border: 1.5px solid var(--itmo-cyan);
+  border-radius: 999px;
+  color: var(--itmo-cyan);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.1rem;
+}
+
+/* framed callout cards */
+.itmo-card {
+  background: var(--itmo-sky);
+  border: 1px solid var(--itmo-sky-line);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+}
+
+.itmo-card-accent {
+  background: var(--itmo-cyan-tint);
+  border: 1px solid var(--itmo-cyan);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+}
+
+.itmo-card-warn {
+  background: #fff1f0;
+  border: 1px solid var(--itmo-orange);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+}
+
+.itmo-card-note {
+  background: #fff8e1;
+  border: 1px solid var(--itmo-yellow);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+}
+
+/* footer drawn by global-bottom.vue */
+.itmo-footer {
+  position: absolute;
+  left: 3.1rem;
+  right: 3.1rem;
+  bottom: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.68rem;
+  color: #7d93b8;
+  border-top: 1px solid var(--itmo-sky-line);
+  padding-top: 0.45rem;
+  pointer-events: none;
+}
+
+/* two-column grid used by the two-cols layout */
+.itmo-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1.9rem;
+  align-items: start;
+}

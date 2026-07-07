@@ -1,0 +1,29 @@
+{
+  "name": "slidev-theme-itmo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bluish Slidev theme for the course, based on the ITMO brand palette",
+  "keywords": [
+    "slidev-theme",
+    "slidev"
+  ],
+  "engines": {
+    "node": ">=20",
+    "slidev": ">=0.50.0"
+  },
+  "slidev": {
+    "defaults": {
+      "aspectRatio": "16/9",
+      "canvasWidth": 980,
+      "colorSchema": "light",
+      "fonts": {
+        "sans": "Golos Text",
+        "mono": "JetBrains Mono",
+        "weights": "400,500,700"
+      },
+      "transition": "slide-left",
+      "lineNumbers": false
+    },
+    "colorSchema": "light"
+  }
+}

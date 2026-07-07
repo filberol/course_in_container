@@ -1,3 +1,6 @@
 
 .obsidian
 .DS_Store
+
+slides/node_modules
+slides/lectures/node_modules
