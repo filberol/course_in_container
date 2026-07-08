@@ -51,7 +51,7 @@ jobs:
 
             npx slidev build \
               "lectures/${lecture}.md" \
-              --base "/course_in_container/${lecture}/" \
+              --base "/course_in_container/${lecture}" \
               --out "$GITHUB_WORKSPACE/site/${lecture}"
           done
 
