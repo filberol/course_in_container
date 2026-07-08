@@ -164,11 +164,33 @@
   border-radius: 10px;
 }
 
+/* ---------- vertical rhythm ----------
+
+   Content slides are centred vertically so sparse slides (and short/wide
+   diagrams) look balanced instead of top-heavy. `safe` keeps them top-aligned
+   when content is tall enough to overflow, so nothing is ever clipped. The
+   diagram auto-sizer (global-bottom.vue) temporarily top-aligns the slide while
+   it measures, so this centring never shrinks a diagram. Cover/section/center/
+   fact layouts keep their own alignment. */
+
+.slidev-layout.default,
+.slidev-layout.two-cols {
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+}
+
 /* ---------- mermaid diagrams ---------- */
 
 .slidev-layout .mermaid {
   display: flex;
   justify-content: center;
+  align-items: center;
+  margin: 0.35rem auto;
+}
+
+.slidev-layout .mermaid svg {
+  border-radius: 12px;
 }
 
 /* ---------- reusable helper classes ---------- */

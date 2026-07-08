@@ -49,9 +49,13 @@ jobs:
           do
             echo "Building lecture ${lecture}..."
 
+            # Relative base ("./"): assets load relative to each lecture's own
+            # directory, and — crucially with hash routing — the subpath is not
+            # baked into the router base, so navigation stays at "#/2" instead of
+            # duplicating into "#/course_in_container/NN/2" (which 404s).
             npx slidev build \
               "lectures/${lecture}.md" \
-              --base "/course_in_container/${lecture}/" \
+              --base "./" \
               --out "$GITHUB_WORKSPACE/site/${lecture}" \
               --router-mode hash
           done
