@@ -166,31 +166,75 @@
 
 /* ---------- vertical rhythm ----------
 
-   Content slides are centred vertically so sparse slides (and short/wide
-   diagrams) look balanced instead of top-heavy. `safe` keeps them top-aligned
-   when content is tall enough to overflow, so nothing is ever clipped. The
-   diagram auto-sizer (global-bottom.vue) temporarily top-aligns the slide while
-   it measures, so this centring never shrinks a diagram. Cover/section/center/
-   fact layouts keep their own alignment. */
+   The header stays at the top (upright). Only the content beneath it is
+   balanced vertically. Content layouts are flex columns aligned to the top;
+   the main content block gets `margin-block: auto`, which centres just that
+   block in the free space below the header without moving the header. The
+   bottom padding reserves room for the footer, so centred content never sits
+   under it. Diagrams fill that space via flex + the mermaid themeCSS. */
 
 .slidev-layout.default,
 .slidev-layout.two-cols {
   display: flex;
   flex-direction: column;
-  justify-content: safe center;
+  justify-content: flex-start;
 }
 
-/* ---------- mermaid diagrams ---------- */
+/* Centre the main content block (below the header) on slides without a diagram. */
+.slidev-layout.default:not(:has(.mermaid)) > table,
+.slidev-layout.default:not(:has(.mermaid)) > ul,
+.slidev-layout.default:not(:has(.mermaid)) > ol,
+.slidev-layout.default:not(:has(.mermaid)) > [class*="grid-cols"],
+.slidev-layout.two-cols:not(:has(.mermaid)) .itmo-cols {
+  margin-block: auto;
+}
+
+/* ---------- mermaid diagrams ----------
+   In a content column the diagram host grows to fill the free space beneath the
+   header (flex: 1). The svg fills that host (see mermaid themeCSS) and scales to
+   it via its viewBox, so diagrams are as large as they can be without manual
+   `{scale}` tuning. The bottom padding keeps them clear of the footer. */
 
 .slidev-layout .mermaid {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0.35rem auto;
+}
+
+.slidev-layout.default > .mermaid,
+.slidev-layout .itmo-col > .mermaid {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  margin: 0.4rem 0;
 }
 
 .slidev-layout .mermaid svg {
   border-radius: 12px;
+}
+
+/* Two-column layout: columns fill the available height and stack top-down, so a
+   diagram in a column is sized (svg height:100%) to the space *beneath* that
+   column's heading instead of overlapping it. */
+.slidev-layout.two-cols .itmo-cols {
+  flex: 1 1 0;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.slidev-layout.two-cols .itmo-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
+}
+
+/* ---------- static handout controls ----------
+   Presenter mode is disabled via the theme's `presenter: false` default. Hide
+   the "slide overview" button too, so the deployed deck exposes no toolbar route
+   to the overview/presenter pages. */
+[title="Show slide overview"] {
+  display: none !important;
 }
 
 /* ---------- reusable helper classes ---------- */
@@ -238,7 +282,7 @@
   padding: 0.7rem 1rem;
 }
 
-/* footer drawn by global-bottom.vue */
+/* footer drawn by ItmoFooter.vue (embedded in each layout) */
 .itmo-footer {
   position: absolute;
   left: 3.1rem;

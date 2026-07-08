@@ -22,7 +22,8 @@
         "weights": "400,500,700"
       },
       "transition": "slide-left",
-      "lineNumbers": false
+      "lineNumbers": false,
+      "presenter": false
     },
     "colorSchema": "light"
   }

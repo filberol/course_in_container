@@ -2,6 +2,8 @@
 
 Методические материалы и наработки для курса. Приветствуется любое участие и вклад в разработку курса.
 
+**Живые презентации лекций:** <https://filberol.github.io/course_in_container/>
+
 ## Структура репозитория
 
 - `Лекции/` — конспекты 16 лекций и план слайдов (`_Список слайдов.md`)
@@ -30,6 +32,8 @@ npm run export -- lectures/01.md --output dist/lecture-01.pdf   # PDF
 
 ### Сборка в CI
 
-Workflow `.github/workflows/slides.yml` при изменениях в `slides/**` экспортирует все
-16 колод в PDF и публикует их артефактами: `lecture-NN` по отдельности и `all-lectures`
-одним архивом (вкладка Actions → выбранный запуск → Artifacts).
+Workflow `.github/workflows/slides.yml` при изменениях в `slides/**`:
+
+- собирает интерактивные презентации и публикует их на **GitHub Pages**
+  (<https://filberol.github.io/course_in_container/>) — по колоде на лекцию;
+- экспортирует все 16 колод в один PDF и выкладывает его в **Release** `latest`.

@@ -70,6 +70,18 @@ export default defineMermaidSetup(() => ({
     cScaleLabel4: '#ffffff',
     cScaleLabel5: '#ffffff',
   },
+  // themeCSS is baked into every rendered diagram's <svg> by Mermaid itself, so
+  // it applies everywhere — interactive SPA and PDF/PNG export alike (unlike
+  // theme JS, which does not run during export). We use it to (1) round node
+  // shapes to match the theme and (2) make the root <svg> fill its host box so
+  // the diagram scales (via its viewBox) to the space the layout gives it.
+  themeCSS: `
+    .node rect, .node circle, rect.actor, .actor > rect, g.classGroup rect,
+    .entityBox, .attributeBoxOdd, .attributeBoxEven, .note, rect.note,
+    .labelBox, .stateGroup rect, .er .entityBox { rx: 6px; ry: 6px; }
+    .cluster rect { rx: 11px; ry: 11px; }
+    svg { width: 100% !important; height: 100% !important; max-width: 100% !important; }
+  `,
   flowchart: {
     curve: 'basis',
     htmlLabels: true,
