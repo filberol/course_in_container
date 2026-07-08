@@ -190,10 +190,16 @@
 }
 
 /* ---------- mermaid diagrams ----------
-   In a content column the diagram host grows to fill the free space beneath the
-   header (flex: 1). The svg fills that host (see mermaid themeCSS) and scales to
-   it via its viewBox, so diagrams are as large as they can be without manual
-   `{scale}` tuning. The bottom padding keeps them clear of the footer. */
+   A single-column diagram takes a bounded share of the slide height (not the
+   whole free space), and the slide distributes the remaining room with
+   `space-around` — so the heading, any intro/caption text and the diagram each
+   get breathing room instead of being pushed to the top and bottom edges. The
+   svg fills that bounded host (see mermaid themeCSS) and scales via its viewBox,
+   so diagrams stay large without manual `{scale}` tuning. */
+
+.slidev-layout.default:has(.mermaid) {
+  justify-content: space-around;
+}
 
 .slidev-layout .mermaid {
   display: flex;
@@ -201,12 +207,20 @@
   align-items: center;
 }
 
-.slidev-layout.default > .mermaid,
+.slidev-layout.default > .mermaid {
+  flex: 0 1 auto;
+  min-height: 0;
+  height: 60%;
+  width: 100%;
+}
+
+/* In a two-column layout a column is narrow, so its diagram fills the column
+   height beneath the heading. */
 .slidev-layout .itmo-col > .mermaid {
   flex: 1 1 0;
   min-height: 0;
   width: 100%;
-  margin: 0.4rem 0;
+  margin: 0.3rem 0;
 }
 
 .slidev-layout .mermaid svg {
