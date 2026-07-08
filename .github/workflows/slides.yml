@@ -51,6 +51,7 @@ jobs:
 
             npx slidev build \
               "lectures/${lecture}.md" \
+              --base "./" \
               --out "$GITHUB_WORKSPACE/site/${lecture}"
           done
 
