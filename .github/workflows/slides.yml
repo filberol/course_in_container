@@ -10,10 +10,17 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+env:
+  LECTURES: |
+    01 02 03 04 05 06 07 08
+    09 10 11 12 13 14 15 16
 
 jobs:
-  export:
-    name: Экспорт и публикация
+  build_site:
+    name: Build Slidev website
     runs-on: ubuntu-latest
 
     defaults:
@@ -29,27 +36,67 @@ jobs:
           cache: npm
           cache-dependency-path: slides/package-lock.json
 
-      - name: Установка зависимостей
+      - name: Install dependencies
         run: npm ci
 
-      - name: Системные библиотеки для Chromium
-        run: npx playwright install-deps chromium
-
-      - name: Экспорт PDF
+      - name: Build interactive slides
         run: |
-          mkdir -p dist
+          mkdir -p ../site
 
           for lecture in \
             01 02 03 04 05 06 07 08 \
             09 10 11 12 13 14 15 16
           do
-            echo "Exporting lecture ${lecture}..."
+            echo "Building lecture ${lecture}..."
 
-            npx slidev export "lectures/${lecture}.md" \
-              --output "dist/${lecture}.pdf" \
-              --timeout 180000 \
-              --wait 1500
+            npx slidev build \
+              "lectures/${lecture}.md" \
+              --out "../site/${lecture}"
           done
+
+      - name: Add landing page
+        run: |
+          cp -r pages/* ../site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+
+  export_pdf:
+    name: Export PDFs
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: slides
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: slides/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium dependencies
+        run: |
+          npx playwright install-deps chromium
+
+      - name: Export all PDFs
+        run: |
+          mkdir -p dist
+
+          npx slidev export \
+            lectures/*.md \
+            --output dist \
+            --timeout 180000 \
+            --wait 1500
 
       - name: Install qpdf
         run: |
@@ -58,13 +105,50 @@ jobs:
 
       - name: Merge PDFs
         run: |
-          qpdf --empty --pages dist/*.pdf -- dist/lectures.pdf
+          qpdf \
+            --empty \
+            --pages dist/*.pdf \
+            -- dist/lectures.pdf
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lecture-pdf
+          path: slides/dist/lectures.pdf
+
+
+  deploy_pages:
+    name: Deploy GitHub Pages
+    needs: build_site
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+
+  release:
+    name: Publish Release
+    needs: export_pdf
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download PDF artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lecture-pdf
+          path: dist
 
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: Latest lecture slides
-          files: slides/dist/lectures.pdf
+          files: dist/lectures.pdf
           make_latest: true
           generate_release_notes: false
