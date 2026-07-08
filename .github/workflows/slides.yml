@@ -4,41 +4,22 @@ on:
   push:
     branches: [main]
     paths:
-      - 'slides/**'
-      - '.github/workflows/slides.yml'
-  pull_request:
-    paths:
-      - 'slides/**'
-      - '.github/workflows/slides.yml'
+      - "slides/**"
+      - ".github/workflows/slides.yml"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   export:
-    name: Лекция ${{ matrix.lecture }}
+    name: Экспорт и публикация
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        lecture:
-          - '01'
-          - '02'
-          - '03'
-          - '04'
-          - '05'
-          - '06'
-          - '07'
-          - '08'
-          - '09'
-          - '10'
-          - '11'
-          - '12'
-          - '13'
-          - '14'
-          - '15'
-          - '16'
+
     defaults:
       run:
         working-directory: slides
+
     steps:
       - uses: actions/checkout@v4
 
@@ -55,25 +36,35 @@ jobs:
         run: npx playwright install-deps chromium
 
       - name: Экспорт PDF
-        run: >
-          npx slidev export "lectures/${{ matrix.lecture }}.md"
-          --output "dist/lecture-${{ matrix.lecture }}.pdf"
-          --timeout 180000
-          --wait 1500
+        run: |
+          mkdir -p dist
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: lecture-${{ matrix.lecture }}
-          path: slides/dist/lecture-${{ matrix.lecture }}.pdf
-          if-no-files-found: error
+          for lecture in \
+            01 02 03 04 05 06 07 08 \
+            09 10 11 12 13 14 15 16
+          do
+            echo "Exporting lecture ${lecture}..."
 
-  bundle:
-    name: Общий артефакт со всеми лекциями
-    needs: export
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/upload-artifact/merge@v4
+            npx slidev export "lectures/${lecture}.md" \
+              --output "dist/${lecture}.pdf" \
+              --timeout 180000 \
+              --wait 1500
+          done
+
+      - name: Install qpdf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qpdf
+
+      - name: Merge PDFs
+        run: |
+          qpdf --empty --pages dist/*.pdf -- dist/lectures.pdf
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: all-lectures
-          pattern: lecture-*
-          delete-merged: false
+          tag_name: latest
+          name: Latest lecture slides
+          files: slides/dist/lectures.pdf
+          make_latest: true
+          generate_release_notes: false
