@@ -51,8 +51,9 @@ jobs:
 
             npx slidev build \
               "lectures/${lecture}.md" \
-              --base "/course_in_container/${lecture}" \
-              --out "$GITHUB_WORKSPACE/site/${lecture}"
+              --base "/course_in_container/${lecture}/" \
+              --out "$GITHUB_WORKSPACE/site/${lecture}" \
+              --router-mode hash
           done
 
       - name: Add landing page
