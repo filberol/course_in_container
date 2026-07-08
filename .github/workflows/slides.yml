@@ -41,7 +41,7 @@ jobs:
 
       - name: Build interactive slides
         run: |
-          mkdir -p ../site
+          mkdir -p $GITHUB_WORKSPACE/site
 
           for lecture in \
             01 02 03 04 05 06 07 08 \
@@ -51,18 +51,21 @@ jobs:
 
             npx slidev build \
               "lectures/${lecture}.md" \
-              --out "../site/${lecture}"
+              --out "$GITHUB_WORKSPACE/site/${lecture}"
           done
 
       - name: Add landing page
         run: |
-          cp theme/pages/index.html ../site/index.html
+          cp theme/pages/index.html $GITHUB_WORKSPACE/site/index.html
+
+      - name: Debug - list site directory (optional)
+        run: ls -laR $GITHUB_WORKSPACE/site
+        if: runner.debug == '1'
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
-
+          path: ${{ github.workspace }}/site
 
   export_pdf:
     name: Export PDFs
@@ -88,15 +91,22 @@ jobs:
         run: |
           npx playwright install-deps chromium
 
-      - name: Export all PDFs
+      - name: Export PDFs
         run: |
           mkdir -p dist
 
-          npx slidev export \
-            lectures/*.md \
-            --output dist \
-            --timeout 180000 \
-            --wait 1500
+          for lecture in \
+            01 02 03 04 05 06 07 08 \
+            09 10 11 12 13 14 15 16
+          do
+            echo "Exporting ${lecture}"
+
+            npx slidev export \
+              "lectures/${lecture}.md" \
+              --output "dist/lecture-${lecture}.pdf" \
+              --timeout 180000 \
+              --wait 1500
+          done
 
       - name: Install qpdf
         run: |
@@ -104,7 +114,6 @@ jobs:
           sudo apt-get install -y qpdf
 
       - name: Merge PDFs
-        working-directory: slides
         run: |
           qpdf \
             --empty \
@@ -116,7 +125,6 @@ jobs:
         with:
           name: lecture-pdf
           path: slides/dist/lectures.pdf
-
 
   deploy_pages:
     name: Deploy GitHub Pages
@@ -131,7 +139,6 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-
 
   release:
     name: Publish Release
