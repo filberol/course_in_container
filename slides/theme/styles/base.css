@@ -190,15 +190,16 @@
 }
 
 /* ---------- mermaid diagrams ----------
-   A single-column diagram takes a bounded share of the slide height (not the
-   whole free space), and the slide distributes the remaining room with
-   `space-around` — so the heading, any intro/caption text and the diagram each
-   get breathing room instead of being pushed to the top and bottom edges. The
-   svg fills that bounded host (see mermaid themeCSS) and scales via its viewBox,
-   so diagrams stay large without manual `{scale}` tuning. */
+   The heading stays pinned at the top: `space-between` (unlike `space-around`)
+   adds no space before the first flex child, so the header sits flush under the
+   top padding, and the free space is distributed only *between* the content
+   items below it (intro text, diagram, caption). The diagram takes a bounded
+   share of the height (not the whole free space); its svg fills that host (see
+   mermaid themeCSS) and scales via its viewBox, so diagrams stay large without
+   manual `{scale}` tuning. */
 
 .slidev-layout.default:has(.mermaid) {
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .slidev-layout .mermaid {

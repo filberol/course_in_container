@@ -8,21 +8,11 @@
   padding: 3rem 3.6rem 4.4rem;
   overflow: hidden;
   color: #ffffff;
-  background:
-    radial-gradient(920px 560px at 88% -12%, rgba(0, 204, 255, 0.32), transparent 62%),
-    radial-gradient(720px 480px at -8% 108%, rgba(0, 204, 255, 0.16), transparent 58%),
-    linear-gradient(135deg, #04193f 0%, #083a8f 48%, #0b68fe 100%);
-}
-
-.slidev-layout.itmo-cover::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 74px 74px;
-  pointer-events: none;
+  /* Solid-stop linear gradient only. Radial glows (transparent stops) and the
+     repeating grid overlay were removed: in PDF export they became SMask soft
+     masks and tiling patterns, which make these slides very slow to render in
+     PDF viewers. A multi-stop linear gradient exports as a fast native shading. */
+  background: linear-gradient(135deg, #04193f 0%, #06327a 42%, #0a4fc2 74%, #0b68fe 100%);
 }
 
 .slidev-layout.itmo-cover h1 {
@@ -69,20 +59,10 @@
   padding: 3rem 4rem;
   overflow: hidden;
   color: #ffffff;
-  background:
-    radial-gradient(820px 520px at 108% 118%, rgba(0, 204, 255, 0.26), transparent 60%),
-    linear-gradient(120deg, #05204e 0%, #0a4fc2 100%);
-}
-
-.slidev-layout.itmo-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 74px 74px;
-  pointer-events: none;
+  /* Solid-stop linear gradient only — see the cover note above. The radial glow
+     (SMask) and repeating grid overlay (tiling pattern) were removed because
+     they made section slides very slow to render in PDF viewers. */
+  background: linear-gradient(120deg, #05204e 0%, #0a4fc2 78%, #0b68fe 100%);
 }
 
 .slidev-layout.itmo-section h1 {
