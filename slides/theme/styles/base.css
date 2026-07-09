@@ -215,6 +215,21 @@
   width: 100%;
 }
 
+/* When the diagram is the ONLY content besides the header (no intro/caption
+   text, list, table or cards), there is nothing to distribute — space-between
+   would strand the diagram at the bottom. Instead let the diagram host fill the
+   whole space below the header; the svg's aspect-ratio centering (xMidYMid)
+   then centres the diagram within it. */
+.slidev-layout.default:has(> .mermaid):not(:has(> p)):not(:has(> ul)):not(:has(> ol)):not(:has(> table)):not(:has(> blockquote)):not(:has(> [class*="grid-cols"])) {
+  justify-content: flex-start;
+}
+
+.slidev-layout.default:has(> .mermaid):not(:has(> p)):not(:has(> ul)):not(:has(> ol)):not(:has(> table)):not(:has(> blockquote)):not(:has(> [class*="grid-cols"])) > .mermaid {
+  flex: 1 1 0;
+  height: auto;
+  margin: 0;
+}
+
 /* In a two-column layout a column is narrow, so its diagram fills the column
    height beneath the heading. */
 .slidev-layout .itmo-col > .mermaid {
