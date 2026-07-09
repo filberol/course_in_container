@@ -43,7 +43,7 @@
         main {
             max-width: 1300px;
             margin: 0 auto;
-            padding: 0 2rem 2rem 2rem;
+            padding: 0 2rem 3rem 2rem;
         }
 
         h1 {
@@ -56,14 +56,70 @@
             margin-bottom: 2.5rem;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns:
-            repeat(auto-fit, minmax(580px, 1fr));
-            gap: 1rem;
+        .section {
+            border: 1px solid #c9ddff;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, .55);
+            margin-bottom: 1rem;
+            overflow: hidden;
         }
 
-        a {
+        .section > summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .9rem;
+            padding: 1.1rem 1.4rem;
+            user-select: none;
+        }
+
+        .section > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .section > summary:hover {
+            background: rgba(11, 104, 254, .05);
+        }
+
+        .chevron {
+            flex: 0 0 auto;
+            width: 1rem;
+            height: 1rem;
+            color: var(--itmo-blue);
+            transition: transform .2s ease;
+        }
+
+        .section[open] > summary .chevron {
+            transform: rotate(90deg);
+        }
+
+        .section-num {
+            flex: 0 0 auto;
+            font-weight: 700;
+            font-size: .8rem;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            color: var(--itmo-blue);
+            background: var(--itmo-sky);
+            border-radius: 999px;
+            padding: .25rem .7rem;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            line-height: 1.3;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            padding: 0 1.4rem 1.4rem 1.4rem;
+        }
+
+        a.card {
             display: block;
             padding: 1.2rem;
             border-radius: 14px;
@@ -74,21 +130,81 @@
             transition: .15s ease;
         }
 
-        a:hover {
+        a.card:hover {
             border-color: var(--itmo-blue);
             transform: translateY(-2px);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+            margin-bottom: .3rem;
+        }
+
+        .type {
+            color: #526985;
+            font-size: .9rem;
+        }
+
+        .chip {
+            flex: 0 0 auto;
+            font-size: .68rem;
+            font-weight: 600;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            color: #8a6d00;
+            background: #fff4cc;
+            border: 1px solid #ffe08a;
+            border-radius: 999px;
+            padding: .15rem .55rem;
         }
 
         .number {
             color: var(--itmo-blue);
             font-weight: 700;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
+            line-height: 1.3;
         }
 
-        .type {
-            margin-top: .3rem;
-            color: #526985;
-            font-size: .9rem;
+        @media (max-width: 640px) {
+            main {
+                padding: 0 1rem 2rem 1rem;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .subtitle {
+                margin-bottom: 1.5rem;
+            }
+
+            .section > summary {
+                flex-wrap: wrap;
+                padding: .9rem 1rem;
+                gap: .6rem;
+            }
+
+            .section-title {
+                font-size: .95rem;
+                flex-basis: 100%;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: .8rem;
+                padding: 0 1rem 1rem 1rem;
+            }
+
+            a.card {
+                padding: 1rem;
+            }
+
+            .number {
+                font-size: 1.05rem;
+            }
         }
     </style>
 </head>
@@ -101,89 +217,176 @@
         Методические материалы и наработки для курса
     </p>
 
-    <div class="grid">
+    <details class="section">
+        <summary>
+            <svg class="chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M5 3l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="section-num">Раздел 1</span>
+            <span class="section-title">Программная инфраструктура и контейнерная модель исполнения</span>
+        </summary>
+        <div class="grid">
+            <a class="card" href="./01/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 01</div>
+                </div>
+                <div class="number">Системный анализ программной инфраструктуры</div>
+            </a>
 
-        <a href="./01/#/1">
-            <div class="type"> Лекция 01</div>
-            <div class="number">Системный анализ программной инфраструктуры</div>
-        </a>
+            <a class="card" href="./02/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 02</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Модели поставки и уровни абстракции инфраструктуры</div>
+            </a>
 
-        <a href="./02/#/1">
-            <div class="type"> Лекция 02</div>
-            <div class="number">Модели поставки и уровни абстракции инфраструктуры</div>
-        </a>
+            <a class="card" href="./03/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 03</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Модель изоляции контейнера</div>
+            </a>
 
-        <a href="./03/#/1">
-            <div class="type"> Лекция 03</div>
-            <div class="number">Модель изоляции контейнера</div>
-        </a>
+            <a class="card" href="./04/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 04</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Образы контейнеров и цепочка поставок программного обеспечения</div>
+            </a>
+        </div>
+    </details>
 
-        <a href="./04/#/1">
-            <div class="type"> Лекция 04</div>
-            <div class="number">Образы контейнеров и цепочка поставок программного обеспечения</div>
-        </a>
+    <details class="section">
+        <summary>
+            <svg class="chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M5 3l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="section-num">Раздел 2</span>
+            <span class="section-title">Распределённое исполнение: сети, состояние, оркестрация</span>
+        </summary>
+        <div class="grid">
+            <a class="card" href="./05/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 05</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Данные и состояние в контейнеризованных системах</div>
+            </a>
 
-        <a href="./05/#/1">
-            <div class="type"> Лекция 05</div>
-            <div class="number">Данные и состояние в контейнеризованных системах</div>
-        </a>
+            <a class="card" href="./06/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 06</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Сети распределённых приложений</div>
+            </a>
 
-        <a href="./06/#/1">
-            <div class="type"> Лекция 06</div>
-            <div class="number">Сети распределённых приложений</div>
-        </a>
+            <a class="card" href="./07/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 07</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Оркестрация и Kubernetes: управление по декларативному состоянию</div>
+            </a>
 
-        <a href="./07/#/1">
-            <div class="type"> Лекция 07</div>
-            <div class="number">Оркестрация и Kubernetes: управление по декларативному состоянию</div>
-        </a>
+            <a class="card" href="./08/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 08</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Управление приложением в кластере Kubernetes</div>
+            </a>
+        </div>
+    </details>
 
-        <a href="./08/#/1">
-            <div class="type"> Лекция 08</div>
-            <div class="number">Управление приложением в кластере Kubernetes</div>
-        </a>
+    <details class="section">
+        <summary>
+            <svg class="chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M5 3l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="section-num">Раздел 3</span>
+            <span class="section-title">Конвейер доставки: версионирование, интеграция, безопасность, конфигурации</span>
+        </summary>
+        <div class="grid">
+            <a class="card" href="./09/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 09</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Git в контуре доставки</div>
+            </a>
 
-        <a href="./09/#/1">
-            <div class="type"> Лекция 09</div>
-            <div class="number">Git в контуре доставки</div>
-        </a>
+            <a class="card" href="./10/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 10</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Конвейер непрерывной интеграции и поставки</div>
+            </a>
 
-        <a href="./10/#/1">
-            <div class="type"> Лекция 10</div>
-            <div class="number">Конвейер непрерывной интеграции и поставки</div>
-        </a>
+            <a class="card" href="./11/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 11</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Безопасность конвейера и цепочки поставки (DevSecOps)</div>
+            </a>
 
-        <a href="./11/#/1">
-            <div class="type"> Лекция 11</div>
-            <div class="number">Безопасность конвейера и цепочки поставки (DevSecOps)</div>
-        </a>
+            <a class="card" href="./12/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 12</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Управление конфигурацией и средами</div>
+            </a>
+        </div>
+    </details>
 
-        <a href="./12/#/1">
-            <div class="type"> Лекция 12</div>
-            <div class="number">Управление конфигурацией и средами</div>
-        </a>
+    <details class="section">
+        <summary>
+            <svg class="chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M5 3l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="section-num">Раздел 4</span>
+            <span class="section-title">Воспроизводимость, наблюдаемость и надёжность</span>
+        </summary>
+        <div class="grid">
+            <a class="card" href="./13/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 13</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Infrastructure as code</div>
+            </a>
 
-        <a href="./13/#/1">
-            <div class="type"> Лекция 13</div>
-            <div class="number">Infrastructure as code</div>
-        </a>
+            <a class="card" href="./14/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 14</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Наблюдаемость инфраструктуры</div>
+            </a>
 
-        <a href="./14/#/1">
-            <div class="type"> Лекция 14</div>
-            <div class="number">Наблюдаемость инфраструктуры</div>
-        </a>
+            <a class="card" href="./15/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 15</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Проектирование надёжности и стоимости</div>
+            </a>
 
-        <a href="./15/#/1">
-            <div class="type"> Лекция 15</div>
-            <div class="number">Проектирование надёжности и стоимости</div>
-        </a>
-
-        <a href="./16/#/1">
-            <div class="type"> Лекция 16</div>
-            <div class="number">Эксплуатация, эволюция и обоснование инфраструктурных решений</div>
-        </a>
-
-    </div>
+            <a class="card" href="./16/#/1">
+                <div class="card-head">
+                    <div class="type">Лекция 16</div>
+                    <span class="chip">ai slop</span>
+                </div>
+                <div class="number">Эксплуатация, эволюция и обоснование инфраструктурных решений</div>
+            </a>
+        </div>
+    </details>
 </main>
 </body>
 </html>
