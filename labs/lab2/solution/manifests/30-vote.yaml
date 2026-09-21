@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+  namespace: ${NS}
+  labels: { app: vote, lab2.canary: "${CANARY}" }
+spec:
+  replicas: ${REPLICAS_VOTE}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: ${MAX_UNAVAIL}
+      maxSurge: 1
+  selector: { matchLabels: { app: vote } }
+  template:
+    metadata:
+      labels: { app: vote, lab2.canary: "${CANARY}" }
+    spec:
+      containers:
+        - name: vote
+          image: dockersamples/examplevotingapp_vote:before
+          ports: [ { containerPort: 80 } ]
+          env:
+            - name: CANARY
+              value: "${CANARY}"
+          readinessProbe:
+            httpGet: { path: /, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /, port: 80 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vote
+  namespace: ${NS}
+  labels: { app: vote }
+spec:
+  selector: { app: vote }
+  ports: [ { port: 80, targetPort: 80 } ]

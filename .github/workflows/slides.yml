@@ -49,11 +49,6 @@ jobs:
             09 10 11 12 13 14 15 16
           do
             echo "Building lecture ${lecture}..."
-
-            # Relative base ("./"): assets load relative to each lecture's own
-            # directory, and — crucially with hash routing — the subpath is not
-            # baked into the router base, so navigation stays at "#/2" instead of
-            # duplicating into "#/course_in_container/NN/2" (which 404s).
             npx slidev build \
               "lectures/${lecture}.md" \
               --base "./" \
@@ -107,7 +102,6 @@ jobs:
             09 10 11 12 13 14 15 16
           do
             echo "Exporting ${lecture}"
-
             npx slidev export \
               "lectures/${lecture}.md" \
               --output "dist/lecture-${lecture}.pdf" \

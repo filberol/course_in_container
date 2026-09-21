@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  namespace: ${NS}
+  labels: { app: db }
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: postgres
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-data
+  namespace: ${NS}
+  labels: { app: db }
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: ${PVC_SIZE}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: ${NS}
+  labels: { app: db }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }        # RWO-том нельзя монтировать в два пода при выкате
+  selector: { matchLabels: { app: db } }
+  template:
+    metadata: { labels: { app: db } }
+    spec:
+      containers:
+        - name: db
+          image: postgres:15-alpine
+          ports: [ { containerPort: 5432 } ]
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-secret, key: POSTGRES_PASSWORD }
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata   # подкаталог: том может нести lost+found
+          readinessProbe:
+            exec: { command: ["pg_isready", "-U", "postgres"] }
+            periodSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: db-data }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: ${NS}
+  labels: { app: db }
+spec:
+  selector: { app: db }
+  ports: [ { port: 5432, targetPort: 5432 } ]

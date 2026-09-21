@@ -1,0 +1,12 @@
+# артефакты прогонов
+.scorecard.tap
+scorecard.json
+evidence/out/
+evidence/stamp.json
+
+# эталон: рендер варианта не коммитим
+solution/rendered/
+
+# python
+__pycache__/
+*.pyc
