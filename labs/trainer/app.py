@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """Глобальный тренажёр лаб. Один движок обслуживает все labs/labN/.
 
-Лаба — самодостаточный пакет: seed.py (params), content.py (TASKS/FILES/…),
-checks/*.bats, stubs/, solution/, defense/, Makefile. Движок подгружает активную
-лабу, отдаёт её задания и файлы, гоняет её контракты (`make -C labN`). Кластер
-студент поднимает сам в терминале; «Проверить» только валидирует состояние.
+Лаба — самодостаточный пакет: seed.py (params), content.py (TITLE/TASKS/…),
+checks/*.bats, scaffold/ (шаблон рабочей директории), solution/, Makefile.
+Движок засевает рабочую директорию labN/workdir/ из scaffold/ (с подстановкой
+сида), даёт файловое дерево с созданием файлов/папок, гоняет контракты
+(`make -C labN`). Кластер студент поднимает сам в терминале (его cwd = workdir).
 """
 import glob
 import importlib.util
 import json
 import os
 import re
+import shutil
 import signal
 import string
 import subprocess
@@ -22,6 +24,7 @@ from flask import Flask, jsonify, request, send_from_directory
 HERE = os.path.dirname(os.path.abspath(__file__))   # labs/trainer
 LABS = os.path.dirname(HERE)                          # labs/
 STATE = os.path.join(HERE, ".state.json")
+CURRENT = os.path.join(LABS, ".current")             # путь workdir для терминала (ttyd)
 
 app = Flask(__name__, static_folder=HERE, static_url_path="")
 TAP = re.compile(r"^(ok|not ok)\s+\d+\s+(\S+)")
@@ -52,8 +55,7 @@ def load_mod(lab, name):
         d = lab_dir(lab)
         if d not in sys.path:
             sys.path.insert(0, d)
-        path = os.path.join(d, name + ".py")
-        spec = importlib.util.spec_from_file_location(f"{lab}_{name}", path)
+        spec = importlib.util.spec_from_file_location(f"{lab}_{name}", os.path.join(d, name + ".py"))
         m = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(m)
         _cache[key] = m
@@ -90,20 +92,45 @@ def subst(t, p):
     return string.Template(t).safe_substitute(p)
 
 
-def ensure_files(lab, p):
-    md = os.path.join(lab_dir(lab), "manifests")
-    os.makedirs(md, exist_ok=True)
-    for f in load_mod(lab, "content").FILES:
-        dst = os.path.join(md, f)
-        if not os.path.exists(dst):
-            src = os.path.join(lab_dir(lab), "stubs", f)
-            raw = open(src).read() if os.path.exists(src) else ""
-            open(dst, "w").write(subst(raw, p))
+# ---------- рабочая директория (workdir) ----------
+def workdir(lab):
+    return os.path.join(lab_dir(lab), "workdir")
 
 
-def suite_stem(lab, sid):
-    g = glob.glob(os.path.join(lab_dir(lab), "checks", f"{sid}_*.bats"))
-    return os.path.splitext(os.path.basename(g[0]))[0] if g else None
+def seed_workdir(lab, p):
+    """Засеять labN/workdir/ из labN/scaffold/ (с подстановкой сида), если её ещё нет."""
+    wd, src = workdir(lab), os.path.join(lab_dir(lab), "scaffold")
+    if os.path.exists(wd) or not os.path.isdir(src):
+        return
+    for root, _dirs, files in os.walk(src):
+        rel = os.path.relpath(root, src)
+        dst = os.path.join(wd, rel) if rel != "." else wd
+        os.makedirs(dst, exist_ok=True)
+        for f in files:
+            raw = open(os.path.join(root, f)).read()
+            open(os.path.join(dst, f), "w").write(subst(raw, p))
+
+
+def safe(lab, rel):
+    wd = workdir(lab)
+    full = os.path.normpath(os.path.join(wd, (rel or "").lstrip("/")))
+    if full != wd and not full.startswith(wd + os.sep):
+        raise ValueError("path escapes workdir")
+    return full
+
+
+def tree(lab):
+    wd = workdir(lab)
+    out = []
+    if not os.path.isdir(wd):
+        return out
+    for root, dirs, files in os.walk(wd):
+        dirs.sort()
+        rel = os.path.relpath(root, wd)
+        for name in sorted(dirs) + sorted(files):
+            path = name if rel == "." else os.path.join(rel, name)
+            out.append({"path": path, "type": "dir" if name in dirs else "file"})
+    return sorted(out, key=lambda x: x["path"])
 
 
 # ---------- проверка (фоновый поток) ----------
@@ -152,6 +179,11 @@ def parse_tap(lab):
     return res
 
 
+def suite_stem(lab, sid):
+    g = glob.glob(os.path.join(lab_dir(lab), "checks", f"{sid}_*.bats"))
+    return os.path.splitext(os.path.basename(g[0]))[0] if g else None
+
+
 def check_job(lab, isu, suite=None):
     JOB.update(running=True, log=[], results=None, gate=None, done=False)
     d = lab_dir(lab)
@@ -159,7 +191,7 @@ def check_job(lab, isu, suite=None):
         log("== Проверяю доступность кластера ==")
         if run(["kubectl", "cluster-info", "--request-timeout=5s"], d) != 0:
             log("")
-            log("Кластера нет. Подними его сам в терминале ниже (cd %s)." % lab)
+            log("Кластера нет. Подними его сам в терминале (его cwd — твоя рабочая директория).")
             JOB["gate"] = "blocked"
             return
         stem = suite_stem(lab, suite) if suite else None
@@ -190,23 +222,82 @@ def index():
 def api_state():
     st = load_state()
     lab, isu = st["lab"], st["isu"]
-    p, tasks, files, labels, hint = {}, [], [], {}, ""
+    p, tasks, labels, hint = {}, [], {}, ""
     if lab:
         C = load_mod(lab, "content")
         p = load_mod(lab, "seed").params(isu) if isu else {}
         if isu:
-            ensure_files(lab, p)
-        md = os.path.join(lab_dir(lab), "manifests")
-        files = [{"name": f, "content": open(os.path.join(md, f)).read()
-                  if os.path.exists(os.path.join(md, f)) else ""} for f in C.FILES]
+            seed_workdir(lab, p)
+            open(CURRENT, "w").write(workdir(lab))    # cwd терминала = workdir активной лабы
         tasks = [{**t, "body": subst(t["body"], p),
                   "hints": [subst(h, p) for h in t["hints"]]} for t in C.TASKS]
         labels = C.CHECK_LABELS
         hint = subst(getattr(C, "TERMINAL_HINT", ""), p)
     return jsonify(lab=lab, labs=labs_list(), title=title(lab) if lab else "",
-                   isu=isu, params=(p or {k: "—" for k in ["NS"]}),
-                   tasks=tasks, files=files, labels=labels, terminal_hint=hint,
-                   ttyd_port=int(os.environ.get("TTYD_PORT", "7681")))
+                   isu=isu, params=(p or {}), tasks=tasks, labels=labels,
+                   terminal_hint=hint, ttyd_port=int(os.environ.get("TTYD_PORT", "7681")))
+
+
+@app.get("/api/tree")
+def api_tree():
+    return jsonify(tree=tree(load_state()["lab"]))
+
+
+@app.route("/api/file", methods=["GET", "PUT"])
+def api_file():
+    st = load_state()
+    lab = st["lab"]
+    if request.method == "GET":
+        try:
+            path = safe(lab, request.args.get("path", ""))
+            return jsonify(content=open(path).read() if os.path.isfile(path) else "")
+        except (ValueError, OSError) as e:
+            return jsonify(error=str(e)), 400
+    d = request.json or {}
+    try:
+        path = safe(lab, d.get("path", ""))
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        open(path, "w").write(d.get("content", ""))
+        return jsonify(ok=True)
+    except (ValueError, OSError) as e:
+        return jsonify(ok=False, error=str(e)), 400
+
+
+@app.post("/api/mkdir")
+def api_mkdir():
+    st = load_state()
+    try:
+        os.makedirs(safe(st["lab"], (request.json or {}).get("path", "")), exist_ok=True)
+        return jsonify(ok=True)
+    except (ValueError, OSError) as e:
+        return jsonify(ok=False, error=str(e)), 400
+
+
+@app.post("/api/rm")
+def api_rm():
+    st = load_state()
+    try:
+        path = safe(st["lab"], (request.json or {}).get("path", ""))
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.exists(path):
+            os.remove(path)
+        return jsonify(ok=True)
+    except (ValueError, OSError) as e:
+        return jsonify(ok=False, error=str(e)), 400
+
+
+@app.post("/api/mv")
+def api_mv():
+    st = load_state()
+    d = request.json or {}
+    try:
+        src, dst = safe(st["lab"], d.get("from", "")), safe(st["lab"], d.get("to", ""))
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        os.rename(src, dst)
+        return jsonify(ok=True)
+    except (ValueError, OSError) as e:
+        return jsonify(ok=False, error=str(e)), 400
 
 
 @app.post("/api/lab")
@@ -224,20 +315,6 @@ def api_isu():
     st = load_state()
     st["isu"] = (request.json or {}).get("isu", "").strip()
     save_state(st)
-    return jsonify(ok=True)
-
-
-@app.put("/api/file")
-def api_file():
-    st = load_state()
-    lab = st["lab"]
-    d = request.json or {}
-    name = d.get("name", "")
-    if name not in load_mod(lab, "content").FILES:
-        return jsonify(ok=False, error="unknown file"), 400
-    md = os.path.join(lab_dir(lab), "manifests")
-    os.makedirs(md, exist_ok=True)
-    open(os.path.join(md, name), "w").write(d.get("content", ""))
     return jsonify(ok=True)
 
 

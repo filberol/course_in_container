@@ -168,6 +168,78 @@
             line-height: 1.3;
         }
 
+        .steps {
+            padding: 0 1.4rem 1.4rem 1.4rem;
+        }
+
+        .steps p {
+            color: #526985;
+            margin: 0 0 .8rem;
+        }
+
+        .steps ol {
+            padding-left: 1.2rem;
+            line-height: 1.7;
+            margin: 0 0 .9rem;
+        }
+
+        .steps code {
+            background: var(--itmo-sky);
+            color: var(--itmo-blue);
+            padding: .08em .4em;
+            border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: .9em;
+        }
+
+        .steps pre {
+            margin: 0;
+            background: #0b0d13;
+            color: #cdd3e6;
+            padding: .9rem 1rem;
+            border-radius: 10px;
+            overflow: auto;
+            font: .85rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+       .install {
+           margin: .8rem 0;
+           border: 1px solid #dce5ef;
+           border-radius: 8px;
+           background: #f8fafc;
+       }
+
+        .install summary {
+            cursor: pointer;
+            padding: .65rem .8rem;
+            font-weight: 600;
+            color: var(--itmo-blue);
+        }
+
+        .install-body {
+            padding: .2rem .8rem .8rem;
+        }
+
+        .install-body p {
+            margin: .7rem 0 .4rem;
+        }
+
+        .install pre {
+            margin: .4rem 0 .8rem;
+        }
+
+        .install-note {
+            margin-top: .8rem !important;
+        }
+
+        .steps pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: inherit;
+        }
+
         @media (max-width: 640px) {
             main {
                 padding: 0 1rem 2rem 1rem;
@@ -385,6 +457,104 @@
                 </div>
                 <div class="number">Эксплуатация, эволюция и обоснование инфраструктурных решений</div>
             </a>
+        </div>
+    </details>
+
+    <details class="section" open>
+        <summary>
+            <svg class="chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M5 3l6 5-6 5" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="section-num">Практикум</span>
+            <span class="section-title">Лабораторные — развёртывание workspace</span>
+        </summary>
+
+        <div class="steps">
+            <p>Единый тренажёр для всех лабораторных работ.</p>
+
+            <ol>
+                <li>
+                    Склонируй репозиторий курса и перейди в каталог <code>labs/</code>.
+                </li>
+
+                <li>
+                    Установи зависимости. Выбери свою операционную систему:
+
+                    <details class="install">
+                        <summary>macOS</summary>
+                        <div class="install-body">
+                            <p>Если Homebrew ещё не установлен:</p>
+                            <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+
+                            <p>Затем установи необходимые инструменты:</p>
+                            <pre><code>brew install docker kind kubectl bats-core jq ttyd
+brew install --cask docker</code></pre>
+
+                            <p>Запусти Docker Desktop и дождись, пока Docker станет доступен.</p>
+                        </div>
+                    </details>
+
+                    <details class="install">
+                        <summary>Linux (Ubuntu/Debian)</summary>
+                        <div class="install-body">
+                            <p>Установи базовые зависимости:</p>
+                            <pre><code>sudo apt update
+sudo apt install -y docker.io kubectl jq bats</code></pre>
+
+                            <p>Установи <code>kind</code> и <code>ttyd</code>:</p>
+                            <pre><code>curl -Lo ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+
+curl -Lo ./ttyd.tar.gz https://github.com/tsl0922/ttyd/releases/latest/download/ttyd.x86_64.tar.gz
+tar -xzf ./ttyd.tar.gz
+sudo mv ./ttyd.x86_64 /usr/local/bin/ttyd</code></pre>
+
+                            <p>Добавь текущего пользователя в группу Docker:</p>
+                            <pre><code>sudo usermod -aG docker "$USER"</code></pre>
+
+                            <p>
+                                После этого выйди из системы и войди снова
+                                либо выполни <code>newgrp docker</code>.
+                            </p>
+                        </div>
+                    </details>
+
+                    <p class="install-note">
+                        Если в репозитории уже предусмотрена автоматическая установка,
+                        можно вместо ручной установки выполнить:
+                    </p>
+
+                    <pre><code>make setup</code></pre>
+                </li>
+
+                <li>
+                    Запусти тренажёр:
+                    <pre><code>make trainer</code></pre>
+                    и открой
+                    <a href="http://localhost:8899"><code>http://localhost:8899</code></a>.
+                </li>
+
+                <li>
+                    Выбери лабораторную работу в селекторе и укажи свой номер ИСУ —
+                    задания и файлы автоматически подставятся по варианту.
+                </li>
+
+                <li>
+                    В терминале подними кластер и применяй манифесты.
+                    Редактируй файлы слева и после выполнения задания нажимай
+                    «Проверить это задание».
+                </li>
+            </ol>
+
+            <p class="install-note">
+                <strong>Быстрый старт</strong> — если все зависимости уже установлены:
+            </p>
+
+            <pre><code>git clone &lt;репозиторий курса&gt; &amp;&amp; cd course_in_container/labs
+make setup
+make trainer</code></pre>
         </div>
     </details>
 </main>

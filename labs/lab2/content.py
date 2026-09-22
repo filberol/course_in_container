@@ -2,9 +2,7 @@
 # ${NS}, ${PVC_SIZE}, ${REPLICAS_VOTE}, ${CANARY}, ${MAX_UNAVAIL} подставляются из сида.
 
 TITLE = "Лаб 2 · Оркестрация"
-TERMINAL_HINT = "cd lab2 && kind create cluster --name lab2 && kubectl apply -f manifests/"
-
-FILES = ["db.yaml", "redis.yaml", "vote.yaml", "result.yaml", "worker.yaml"]
+TERMINAL_HINT = "kind create cluster --name lab2 && kubectl apply -f manifests/"
 
 TASKS = [
     {

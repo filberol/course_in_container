@@ -1,9 +1,9 @@
 .venv/
+.current
 trainer/.state.json
 **/__pycache__/
 *.pyc
 **/.scorecard.tap
-**/manifests/*.yaml
+**/scorecard.json
+**/workdir/
 **/solution/rendered/
-**/evidence/out/
-**/evidence/stamp.json

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Глобальный тренажёр лаб на хосте: терминал (ttyd) + страница-валидатор (Flask).
-# Кластер и манифесты студент поднимает сам в терминале активной лабы.
+# Терминал по умолчанию открывается в рабочей директории активной лабы (labs/.current).
 set -e
 cd "$(dirname "$0")/.."                       # labs/
 PORT="${PORT:-8899}"
@@ -12,7 +12,9 @@ command -v ttyd >/dev/null || { echo "нужен ttyd: brew install ttyd (или
 "$VENV/bin/pip" install -q flask >/dev/null 2>&1 || true
 
 pkill -f "ttyd .*-p $TTYD_PORT" 2>/dev/null || true
-ttyd -W -p "$TTYD_PORT" bash >/tmp/labs-ttyd.log 2>&1 &
+# каждая сессия терминала стартует в workdir активной лабы (путь в .current)
+ttyd -W -p "$TTYD_PORT" bash -c 'd=$(cat .current 2>/dev/null); [ -n "$d" ] && cd "$d"; exec bash' \
+     >/tmp/labs-ttyd.log 2>&1 &
 
 echo "терминал: http://localhost:$TTYD_PORT"
 echo "страница: http://localhost:$PORT"

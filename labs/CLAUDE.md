@@ -42,15 +42,13 @@ labs/
     serve.sh setup.sh
   lab2/              # ПАКЕТ ЛАБЫ (самодостаточный)
     seed.py          #   params(isu) + CLI (--env/--get); детерминированно от ИСУ
-    content.py       #   TITLE, TERMINAL_HINT, FILES, TASKS, CHECK_LABELS
-    Makefile         #   seed/check/check-suite/evidence/grade/render/selftest/clean
+    content.py       #   TITLE, TERMINAL_HINT, TASKS, CHECK_LABELS
+    Makefile         #   seed/check/check-suite/render/selftest/clean
     checks/lib.sh    #   хелперы (kc, _to, inpod, cast_vote, read_count, lb_hostnames)
     checks/NN_*.bats #   контракты по заданиям (TAP, ASCII-имена)
-    checks/scorecard.py  TAP → gate
-    stubs/           #   файлы-заготовки (комментарии, без решения)
+    scaffold/        #   шаблон рабочей директории (дерево файлов-заготовок, комментарии)
+    workdir/         #   рабочая зона студента: засев из scaffold/ с подстановкой сида (в .gitignore)
     solution/        #   [преподаватель] эталон по сиду + render.py; НЕ входит в шаблон студента
-    defense/         #   questions.py (из артефакта), breakfix.py (сид-сбои)
-    manifests/       #   рабочая зона студента (засев из stubs/; *.yaml в .gitignore)
     README.md
   lab3/ …            # следующая лаба — такой же пакет
 ```
@@ -70,7 +68,8 @@ labs/
 4. **Переносимые таймауты.** Внешние вызовы оборачивать в `_to N cmd`
    (timeout/gtimeout/без ограничения). Голый `timeout` нельзя — на macOS его нет.
 5. **Стрим + подсчёт через файл, не висячий пайп.**
-   `bats --tap --timing checks/ | tee .scorecard.tap`, затем `scorecard.py < …`.
+   `bats --tap --timing checks/ | tee .scorecard.tap` — TAP стримит по-тестово.
+   Тренажёр читает `.scorecard.tap` сам (красит чипы); CLI-`check` — inline `grep '^not ok'`.
 6. **Проверка по одному заданию.** `check-suite SUITE=NN_name` гоняет один файл.
    Движок сам мапит id задания «NN» → файл `NN_*.bats`.
 7. **Контракт env.** Проверки читают параметры из окружения (NS, CANARY, …),
@@ -83,15 +82,15 @@ labs/
   Детерминированно `sha256(isu + SALT)`, механика открытая. Обязательно: canary-токен
   (якорь личности) + outcome-параметры + `BREAKFIX_ID`. `NS` — namespace для статуса.
 - **`content.py`** — `TITLE` (для селектора), `TERMINAL_HINT` (команды поднятия
-  кластера, показываются в терминал-хедере), `FILES` (вкладки редактора = имена в
-  `stubs/` и `manifests/`), `TASKS` (id, title, body, hints[], checks[]),
-  `CHECK_LABELS` (id контракта → ярлык чипа). `${NS}` и т.п. подставляются из сида.
+  кластера, показываются в терминал-хедере), `TASKS` (id, title, body, hints[],
+  checks[]), `CHECK_LABELS` (id контракта → ярлык чипа). `${NS}` и т.п. — из сида.
 - **`Makefile`** — цели `check` / `check-suite SUITE=… ISU=…` (пишут `.scorecard.tap`
-  в корне лабы), `selftest`, `grade`, `evidence`. Движок вызывает их через `make -C labN`.
-- **`stubs/`** — по файлу на каждый из `FILES` (только комментарии, без решения).
+  в корне лабы), `render`, `selftest`. Движок вызывает их через `make -C labN`.
+- **`scaffold/`** — дерево-шаблон рабочей директории (файлы только с комментариями,
+  без решения). Движок засевает из него `workdir/` с подстановкой сида; студент правит
+  дерево (создание/удаление файлов и папок) в редакторе, терминал стартует в `workdir/`.
 - **`solution/`** — шаблон по сиду + `render.py`; `make selftest` = render+apply+check.
   Способ выбирать намеренно method-blind. **Вырезается из студенческого шаблона.**
-- **`defense/`** — `questions.py` (парсит артефакт студента) + `breakfix.py` (сид-сбои).
 
 Движок (`trainer/`) при добавлении лабы **не меняется**.
 
@@ -99,13 +98,12 @@ labs/
 
 1. `cp -r lab2 lab3` и вычистить под новый слой.
 2. `seed.py`: новый `SALT` + параметры слоя + canary + `BREAKFIX_ID`.
-3. `content.py`: `TITLE`, `TERMINAL_HINT`, `FILES`, `TASKS`/`CHECK_LABELS` (по-русски).
+3. `content.py`: `TITLE`, `TERMINAL_HINT`, `TASKS`/`CHECK_LABELS` (по-русски).
 4. `checks/NN_*.bats`: контракты (ASCII, method-blind, foreground-хелперы).
-5. `stubs/`: заготовки. `solution/`: эталон по сиду; `make selftest` должен пройти
-   end-to-end зелёным.
-6. `defense/`: вопросы из артефакта + сид-сбои.
-7. Handout студента в `Лабораторные/…md` в формате Лаб 1; §4 — поток тренажёра.
-8. Готово: лаба появляется в селекторе тренажёра автоматически.
+5. `scaffold/`: дерево-шаблон рабочей директории. `solution/`: эталон по сиду;
+   `make selftest` должен пройти end-to-end зелёным.
+6. Handout студента в `Лабораторные/…md` в формате Лаб 1; §4 — поток тренажёра.
+7. Готово: лаба появляется в селекторе тренажёра автоматически.
 
 ## Проверка перед сдачей лабы
 
