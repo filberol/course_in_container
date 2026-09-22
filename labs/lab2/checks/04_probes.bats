@@ -17,9 +17,7 @@ setup() {
 
 # 04.2 эндпоинт vote отвечает 200 (проба рабочая)
 @test "04.2 vote endpoint returns 200" {
-  pf=$(portforward vote 15004 80)
-  code=$(http_code http://127.0.0.1:15004/)
-  kill "$pf" 2>/dev/null || true
+  code=$(vote_http_code)
   [ "$code" = "200" ]
 }
 

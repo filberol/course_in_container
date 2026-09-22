@@ -1,0 +1,5 @@
+# PostgreSQL (задания 1–2)
+# Нужно: Secret с паролем · PVC размера ${PVC_SIZE} · рабочая нагрузка (Deployment
+# или StatefulSet) · Service с именем ровно "db".
+# Пароль в контейнер — через secretKeyRef, не открытым текстом. label app: db.
+# PGDATA задай на подкаталог тома. Заполни ниже:

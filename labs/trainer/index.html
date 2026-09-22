@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тренажёр лаб</title>
+<link rel="stylesheet" href="/vendor/codemirror.min.css">
+<style>
+  :root { --bg:#12141c; --panel:#1b1e2a; --line:#2c3040; --fg:#e6e8ef; --mut:#9aa0b4;
+          --acc:#4f8cff; --ok:#2ecc71; --bad:#ff5d5d; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;
+         background:var(--bg); color:var(--fg); height:100vh; display:flex; flex-direction:column; }
+  header { display:flex; align-items:center; gap:10px; padding:9px 16px;
+           background:var(--panel); border-bottom:1px solid var(--line); }
+  header h1 { font-size:15px; margin:0; font-weight:600; white-space:nowrap; }
+  header .sp { flex:1; }
+  input, button, select { font:inherit; border-radius:8px; border:1px solid var(--line); }
+  input { background:#0e1017; color:var(--fg); padding:6px 10px; width:120px; }
+  select { background:#0e1017; color:var(--fg); padding:6px 10px; }
+  button { background:var(--acc); color:#fff; border:none; padding:7px 14px; cursor:pointer; }
+  button.ghost { background:#262a38; color:var(--fg); }
+  button.mini { padding:4px 10px; font-size:12px; margin-top:8px; }
+  button:disabled { opacity:.5; cursor:default; }
+  .badge { padding:4px 10px; border-radius:20px; font-size:12px; background:#262a38; color:var(--mut); }
+  .badge.ok { background:rgba(46,204,113,.15); color:var(--ok); }
+  .badge.bad { background:rgba(255,93,93,.15); color:var(--bad); }
+  .cluster { font-size:12px; color:var(--mut); padding:5px 16px; background:#0e1017;
+             border-bottom:1px solid var(--line); }
+  .cluster b { color:var(--fg); }
+  .cluster .dot { display:inline-block; width:8px; height:8px; border-radius:50%;
+                  background:var(--bad); margin-right:6px; vertical-align:middle; }
+  .cluster.up .dot { background:var(--ok); }
+  main { flex:1; display:flex; min-height:0; }
+  .instr { width:40%; overflow:auto; padding:16px; border-right:1px solid var(--line); }
+  .work  { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .params { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .params span { background:#0e1017; border:1px solid var(--line); border-radius:6px;
+                 padding:3px 8px; font-size:12px; color:var(--mut); }
+  .params b { color:var(--fg); }
+  details.log { margin-bottom:12px; }
+  details.log summary { color:var(--mut); }
+  details.log pre { margin:6px 0 0; padding:10px; background:#0b0d13; border:1px solid var(--line);
+                    border-radius:8px; max-height:200px; overflow:auto; white-space:pre-wrap;
+                    font:12px/1.45 ui-monospace,monospace; color:#b8bdd0; }
+  .task { background:var(--panel); border:1px solid var(--line); border-radius:10px;
+          padding:12px 14px; margin-bottom:12px; }
+  .task h3 { margin:0 0 6px; font-size:14px; }
+  .task p { margin:0 0 8px; color:#cfd3e0; }
+  details.hint { margin:4px 0; }
+  details.hint summary { cursor:pointer; color:var(--acc); font-size:13px; }
+  details.hint p { margin:6px 0 0; color:var(--mut); font-size:13px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .chip { font-size:12px; padding:3px 8px; border-radius:14px; background:#0e1017;
+          border:1px solid var(--line); color:var(--mut); }
+  .chip.ok  { border-color:var(--ok); color:var(--ok); }
+  .chip.bad { border-color:var(--bad); color:var(--bad); }
+  .tabs { display:flex; gap:2px; background:var(--panel); border-bottom:1px solid var(--line);
+          padding:6px 8px 0; flex-wrap:wrap; }
+  .tab { padding:6px 12px; border-radius:8px 8px 0 0; cursor:pointer; color:var(--mut); font-size:13px; }
+  .tab.active { background:#0e1017; color:var(--fg); }
+  .editor-wrap { flex:1.1; min-height:0; display:flex; }
+  .CodeMirror { flex:1; height:auto; font-size:13px; }
+  .termhead { font-size:12px; color:var(--mut); padding:6px 12px; background:var(--panel);
+              border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .termhead code { color:#cfd3e0; }
+  .term-wrap { flex:1.3; min-height:0; }
+  iframe.term { width:100%; height:100%; border:0; background:#000; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Тренажёр лаб</h1>
+  <select id="lab" title="выбор лабы"></select>
+  <input id="isu" placeholder="номер ИСУ">
+  <button class="ghost" id="saveIsu">Задать</button>
+  <span class="sp"></span>
+  <span id="gate" class="badge">Не проверено</span>
+  <button id="check">Проверить</button>
+</header>
+<div class="cluster" id="cluster"><span class="dot"></span>Кластер: проверяю…</div>
+<main>
+  <section class="instr">
+    <div class="params" id="params"></div>
+    <details class="log"><summary>Лог проверки</summary><pre id="log">Выбери лабу, укажи ИСУ, заполни файлы и нажми «Проверить».</pre></details>
+    <div id="tasks"></div>
+  </section>
+  <section class="work">
+    <div class="tabs" id="tabs"></div>
+    <div class="editor-wrap"><textarea id="editor"></textarea></div>
+    <div class="termhead" id="termhead">Терминал (хост) — кластер и манифесты поднимаешь сам.</div>
+    <div class="term-wrap"><iframe class="term" id="term"></iframe></div>
+  </section>
+</main>
+
+<script src="/vendor/codemirror.min.js"></script>
+<script src="/vendor/yaml.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const cid = id => 'chk-' + id.replace('.', '-');
+let cm, files = [], cur = 0, poll = null;
+
+cm = CodeMirror.fromTextArea($('#editor'), { mode:'yaml', lineNumbers:true, indentUnit:2, tabSize:2 });
+
+let saveTimer = null;
+cm.on('change', () => {
+  if (!files.length) return;
+  files[cur].content = cm.getValue();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveCurrent, 700);
+});
+async function saveCurrent() {
+  await fetch('/api/file', { method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name: files[cur].name, content: files[cur].content }) });
+}
+function openFile(i) {
+  cur = i;
+  cm.setValue(files[i] ? files[i].content : '');
+  document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', j === i));
+}
+
+function renderParams(p) {
+  $('#params').innerHTML = Object.entries(p)
+    .filter(([k]) => k !== 'ISU' && k !== 'BREAKFIX_ID')
+    .map(([k, v]) => `<span>${k}: <b>${v}</b></span>`).join('');
+}
+function renderTasks(tasks, labels) {
+  $('#tasks').innerHTML = tasks.map(t => `
+    <div class="task">
+      <h3>${t.title}</h3>
+      <p>${t.body}</p>
+      ${t.hints.map((h, i) => `<details class="hint"><summary>Подсказка ${i+1}</summary><p>${h}</p></details>`).join('')}
+      <div class="chips">
+        ${t.checks.map(c => `<span class="chip" id="${cid(c)}">${labels[c] || c}</span>`).join('')}
+      </div>
+      <button class="ghost mini" onclick="checkSuite('${t.id}')">Проверить это задание</button>
+    </div>`).join('');
+}
+function renderTabs() {
+  $('#tabs').innerHTML = files.map((f, i) => `<div class="tab" onclick="openFile(${i})">${f.name}</div>`).join('');
+  if (files.length) openFile(0); else cm.setValue('');
+}
+function renderLabs(labs, active) {
+  $('#lab').innerHTML = labs.map(l => `<option value="${l.id}" ${l.id===active?'selected':''}>${l.title}</option>`).join('');
+}
+
+async function load() {
+  const s = await (await fetch('/api/state')).json();
+  renderLabs(s.labs, s.lab);
+  $('#isu').value = s.isu || '';
+  renderParams(s.params);
+  renderTasks(s.tasks, s.labels);
+  files = s.files; renderTabs();
+  $('#termhead').innerHTML = s.terminal_hint
+    ? 'Терминал (хост): <code>' + s.terminal_hint + '</code>'
+    : 'Терминал (хост) — кластер и манифесты поднимаешь сам.';
+  $('#term').src = location.protocol + '//' + location.hostname + ':' + s.ttyd_port;
+}
+
+$('#lab').onchange = async () => {
+  await fetch('/api/lab', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ lab: $('#lab').value }) });
+  await load();
+};
+$('#saveIsu').onclick = async () => {
+  await fetch('/api/isu', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ isu: $('#isu').value.trim() }) });
+  await load();
+};
+
+async function refreshCluster() {
+  try {
+    const c = await (await fetch('/api/cluster')).json();
+    const el = $('#cluster');
+    if (c.reachable) {
+      const ready = c.pods.filter(p => p.status === 'Running' && p.ready.split('/')[0] === p.ready.split('/')[1]).length;
+      el.className = 'cluster up';
+      el.innerHTML = `<span class="dot"></span>кластер: <b>${c.context||'—'}</b> · подов готово ${ready}/${c.pods.length}`;
+    } else {
+      el.className = 'cluster';
+      el.innerHTML = `<span class="dot"></span>кластер не найден — создай его в терминале ниже`;
+    }
+  } catch (e) {}
+}
+
+function setGate(g) {
+  const el = $('#gate');
+  el.className = 'badge ' + (g === 'admitted' ? 'ok' : g === 'blocked' ? 'bad' : '');
+  el.textContent = g === 'admitted' ? 'допущен' : g === 'blocked' ? 'есть красное' : 'проверка…';
+}
+function applyResults(res) {
+  if (!res) return;
+  for (const [id, ok] of Object.entries(res)) {
+    const el = document.getElementById(cid(id));
+    if (el) el.className = 'chip ' + (ok ? 'ok' : 'bad');
+  }
+}
+
+async function checkRun(suite) {
+  const r = await fetch('/api/check', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(suite ? { suite } : {}) });
+  if (!r.ok) { const e = await r.json(); $('#log').textContent = e.error || 'ошибка';
+    document.querySelector('details.log').open = true; return; }
+  document.querySelectorAll('button').forEach(b => b.disabled = true);
+  if (!suite) { setGate(null); document.querySelectorAll('.chip').forEach(c => c.className = 'chip'); }
+  document.querySelector('details.log').open = true;
+  clearInterval(poll);
+  poll = setInterval(async () => {
+    const st = await (await fetch('/api/check')).json();
+    $('#log').textContent = st.log.join('\n');
+    $('#log').scrollTop = $('#log').scrollHeight;
+    applyResults(st.results);
+    if (st.done) {
+      clearInterval(poll);
+      document.querySelectorAll('button').forEach(b => b.disabled = false);
+      if (!suite) setGate(st.gate);
+    }
+  }, 1500);
+}
+window.checkSuite = checkRun;
+$('#check').onclick = () => checkRun(null);
+
+load();
+refreshCluster();
+setInterval(refreshCluster, 6000);
+</script>
+</body>
+</html>

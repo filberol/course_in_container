@@ -1,5 +1,5 @@
-# Лаб 2 — harness. Требует: kind, kubectl, python3, bats, jq.
-# Задавайте свой номер ИСУ:  make check ISU=123456
+# Лаб 2 — harness. Хостовые зависимости: kind, kubectl, bats, jq, python3, ttyd, coreutils.
+# Установить всё: make setup.  Задавайте свой номер ИСУ:  make check ISU=123456
 
 ISU ?=
 CLUSTER ?= lab2
@@ -10,15 +10,22 @@ endif
 
 NS := $(shell python3 seed.py --isu $(ISU) --get NS 2>/dev/null)
 
-.PHONY: help seed check evidence grade render selftest clean
+.PHONY: help setup seed check check-suite evidence grade render selftest trainer clean
 
 help:
 	@echo "Цели:"
-	@echo "  make seed     ISU=<ису>   параметры варианта"
-	@echo "  make check    ISU=<ису>   прогнать контракты заданий (тренажёр)"
-	@echo "  make evidence ISU=<ису>   снять состояние кластера, посчитать хеш E"
-	@echo "  make grade    ISU=<ису>   [преподаватель] повтор + вопросы + break-fix"
-	@echo "  make clean                удалить kind-кластер $(CLUSTER)"
+	@echo "  make setup                установить хостовые зависимости + venv"
+	@echo "  make trainer              запустить страницу-тренажёр (+ терминал)"
+	@echo "  make seed        ISU=<ису> параметры варианта"
+	@echo "  make check       ISU=<ису> все контракты"
+	@echo "  make check-suite SUITE=NN_name ISU=<ису>  один блок контрактов"
+	@echo "  make evidence    ISU=<ису> снимок состояния + хеш E"
+	@echo "  make grade       ISU=<ису> [преподаватель] повтор + вопросы + break-fix"
+	@echo "  make clean                 удалить kind-кластер $(CLUSTER)"
+
+# установка хостовых зависимостей (mac: brew) + venv тренажёра
+setup:
+	@bash weblab/setup.sh
 
 seed:
 	@python3 seed.py --isu $(ISU)
@@ -27,7 +34,15 @@ check:
 	@test -n "$(ISU)" || { echo "нужен ISU=<ису>"; exit 2; }
 	@eval $$(python3 seed.py --isu $(ISU) --env); \
 	 export NS CANARY REPLICAS_VOTE PVC_SIZE MAX_UNAVAIL BREAKFIX_ID; \
-	 bats --tap checks/ | tee .scorecard.tap | python3 checks/scorecard.py --isu $(ISU)
+	 bats --tap --timing checks/ | tee .scorecard.tap; \
+	 python3 checks/scorecard.py --isu $(ISU) < .scorecard.tap
+
+# контракты одного задания (быстро): make check-suite SUITE=03_scaling ISU=<ису>
+check-suite:
+	@test -n "$(ISU)" || { echo "нужен ISU=<ису>"; exit 2; }
+	@eval $$(python3 seed.py --isu $(ISU) --env); \
+	 export NS CANARY REPLICAS_VOTE PVC_SIZE MAX_UNAVAIL BREAKFIX_ID; \
+	 bats --tap --timing checks/$(SUITE).bats | tee .scorecard.tap
 
 evidence:
 	@test -n "$(ISU)" || { echo "нужен ISU=<ису>"; exit 2; }
@@ -53,6 +68,10 @@ render:
 selftest: render
 	kubectl apply -f solution/rendered/
 	@$(MAKE) --no-print-directory check ISU=$(ISU)
+
+# тренажёр на хосте: страница-валидатор + встроенный терминал (кластер поднимаешь сам)
+trainer:
+	bash weblab/serve.sh
 
 clean:
 	-kind delete cluster --name $(CLUSTER)

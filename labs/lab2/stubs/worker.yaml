@@ -1,0 +1,4 @@
+# worker (задание 1)
+# Deployment: образ dockersamples/examplevotingapp_worker:latest.
+# Без Service и без порта — это фоновый обработчик (redis -> db).
+# label app: worker. Заполни ниже:

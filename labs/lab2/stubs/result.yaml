@@ -1,0 +1,4 @@
+# result (задания 1, 4)
+# Deployment: образ dockersamples/examplevotingapp_result:before, порт 80.
+# readinessProbe + livenessProbe (httpGet / :80).
+# Service с именем "result", порт 80. label app: result. Заполни ниже:

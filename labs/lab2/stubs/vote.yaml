@@ -1,0 +1,6 @@
+# vote (задания 1, 3, 4, 5)
+# Deployment: образ dockersamples/examplevotingapp_vote:before, порт 80,
+#   replicas ${REPLICAS_VOTE}, strategy RollingUpdate maxUnavailable ${MAX_UNAVAIL}.
+# readinessProbe + livenessProbe (httpGet / :80).
+# label lab2.canary: "${CANARY}" и env CANARY=${CANARY}.
+# Service с именем "vote", порт 80. label app: vote. Заполни ниже:

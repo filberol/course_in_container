@@ -15,23 +15,16 @@ setup() {
 # 05.2 выкат без простоя: readyReplicas не падает ниже N - maxUnavailable
 @test "05.2 zero-downtime rollout keeps readyReplicas >= N minus maxUnavailable" {
   local floor=$(( REPLICAS_VOTE - MAX_UNAVAIL ))
-  local samples=/tmp/lab2_ready.$$
-  : > "$samples"
-  ( for _ in $(seq 1 80); do
-      kc get deploy vote -o jsonpath='{.status.readyReplicas}' >> "$samples" 2>/dev/null
-      echo >> "$samples"
-      sleep 0.5
-    done ) &
-  local sampler=$!
-
   kc rollout restart deploy/vote
-  kc rollout status deploy/vote --timeout=180s
-
-  kill "$sampler" 2>/dev/null || true
-  local min
-  min=$(grep -E '^[0-9]+$' "$samples" | sort -n | head -1)
-  rm -f "$samples"
-  [ -n "$min" ]
+  # семплируем доступность в foreground, пока идёт выкат (без фоновых процессов)
+  local min="$REPLICAS_VOTE" r i
+  for i in $(seq 1 180); do
+    r=$(kc get deploy vote -o jsonpath='{.status.readyReplicas}' 2>/dev/null)
+    [ -n "$r" ] && [ "$r" -lt "$min" ] && min="$r"
+    kc rollout status deploy/vote --timeout=1s >/dev/null 2>&1 && break
+    sleep 1
+  done
+  kc rollout status deploy/vote --timeout=120s
   [ "$min" -ge "$floor" ]
 }
 

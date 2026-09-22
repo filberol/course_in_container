@@ -1,0 +1,3 @@
+# Redis (задание 1)
+# Deployment + Service с именем ровно "redis", порт 6379. Без PVC (эфемерный).
+# label app: redis. Заполни ниже:
