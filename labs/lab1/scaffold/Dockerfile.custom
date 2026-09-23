@@ -1,0 +1,17 @@
+# Dockerfile.custom — кастомный образ vote (задание 3).
+#
+# Базируйся на готовом образе, не пересобирай приложение с нуля:
+#   FROM dockersamples/examplevotingapp_vote
+#
+# Навесь canary-метку из своего варианта (проверка читает label lab1.canary):
+#   LABEL lab1.canary="${CANARY}"
+#
+# Положи свой шаблон поверх страницы vote. Внутри образа шаблон лежит рядом с
+# приложением (templates/index.html) — уточни путь через
+#   docker run --rm dockersamples/examplevotingapp_vote sh -c 'find / -name index.html 2>/dev/null'
+# и скопируй:
+#   COPY custom_index.html <путь к templates/index.html внутри образа>
+#
+# Собери и запусти:
+#   docker build -f Dockerfile.custom -t vote-custom:v1 .
+#   docker run -d -p ${VOTE_PORT}:80 --name vote-test vote-custom:v1

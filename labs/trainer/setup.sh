@@ -15,4 +15,11 @@ echo "== venv тренажёра =="
 python3 -m venv .venv
 .venv/bin/pip install -q flask
 
+# PyYAML для системного python3 — строгие ворота Лаб 3 (парсинг workflow-ов).
+# Без него проверки используют встроенный мягкий ридер.
+echo "== PyYAML для проверок Лаб 3 =="
+python3 -m pip install -q --user pyyaml 2>/dev/null \
+  || python3 -m pip install -q --break-system-packages pyyaml 2>/dev/null \
+  || echo "  не поставился — Лаб 3 упадёт на встроенный ридер (мягче для 04.3)"
+
 echo "готово. Запуск: make trainer"

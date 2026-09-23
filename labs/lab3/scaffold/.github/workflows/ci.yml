@@ -1,0 +1,19 @@
+# CI-конвейер для example-voting-app (Лаб 3). Заполни джобы сам.
+# Проверки читают состав конвейера (стадии, гейты, теги), а не точный YAML.
+#
+# Что должно быть (см. задания и подсказки на странице):
+#   - lint и test;
+#   - build образа сервиса vote;
+#   - стратегия тегирования из твоего варианта;
+#   - DevSecOps-гейт: Trivy (образ) + сканер зависимостей + SAST + gitleaks,
+#     сборка ДОЛЖНА падать на находках;
+#   - промоушен dev → stage (environments / approval);
+#   - canary-метка варианта в теге/лейбле образа.
+name: ci
+on: [push, pull_request]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "TODO: замени placeholder на свой конвейер lint → test → build → scan → publish"

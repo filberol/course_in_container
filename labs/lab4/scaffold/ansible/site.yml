@@ -1,0 +1,12 @@
+# Идемпотентный Ansible-playbook (Лаб 4). Замени на свои plays.
+# Требование: повторный прогон не меняет состояние (changed=0). Используй модули
+# (например kubernetes.core.k8s), не shell/command. Проверка запускается из каталога
+# ansible/, поэтому playbook держи здесь.
+#
+# Пример (раскомментируй и заполни):
+# - hosts: localhost
+#   connection: local
+#   gather_facts: false
+#   tasks:
+#     - name: <идемпотентная задача>
+#       ...
