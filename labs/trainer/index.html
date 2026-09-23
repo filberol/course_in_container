@@ -16,10 +16,13 @@
   }
   * { box-sizing:border-box; }
   body { margin:0; font:14px/1.55 -apple-system,Segoe UI,Roboto,sans-serif;
-         background:#fff; color:var(--ink); height:100vh; display:flex; flex-direction:column; }
+         background:#fff; color:var(--ink); height:100vh; overflow:hidden;
+         display:flex; flex-direction:column; }
   header { display:flex; align-items:center; gap:10px; padding:9px 16px;
            background:#fff; border-bottom:1px solid var(--sky-line); }
   header h1 { font-size:15px; margin:0; font-weight:700; color:var(--navy); white-space:nowrap; }
+  header a.home { color:var(--blue); text-decoration:none; font-size:13px; white-space:nowrap; }
+  header a.home:hover { text-decoration:underline; }
   header .sp { flex:1; }
   input, button, select { font:inherit; border-radius:8px; border:1px solid var(--sky-line); }
   input, select { background:#fff; color:var(--ink); padding:6px 10px; }
@@ -49,17 +52,36 @@
   .log pre { margin:6px 0 0; padding:10px; background:#0b0d13; border-radius:8px; max-height:200px;
              overflow:auto; white-space:pre-wrap; font:12px/1.45 ui-monospace,monospace; color:#cdd3e6; }
   .task { background:#fff; border:1px solid var(--sky-line); border-radius:12px;
-          padding:12px 14px; margin-bottom:12px; box-shadow:0 1px 2px rgba(6,33,79,.04); }
+          margin-bottom:12px; box-shadow:0 1px 2px rgba(6,33,79,.04);
+          display:flex; flex-direction:column; }
+  .task .body { padding:12px 14px; }
   .task h3 { margin:0 0 6px; font-size:14px; color:var(--navy); }
   .task p { margin:0 0 8px; color:var(--ink); }
   details.hint { margin:4px 0; }
   details.hint > summary { color:var(--blue); font-weight:400; font-size:13px; }
   details.hint p { margin:6px 0 0; color:var(--mut); font-size:13px; }
-  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
-  .chip { font-size:12px; padding:3px 8px; border-radius:14px; background:var(--sky);
-          border:1px solid var(--sky-line); color:var(--mut); }
-  .chip.ok  { border-color:var(--ok); color:var(--ok); background:rgba(15,157,88,.08); }
-  .chip.bad { border-color:var(--bad); color:var(--bad); background:#fff1f0; }
+  /* нижняя панель: сегменты-контракты + «Проверить»; нижние углы скруглены как верх */
+  .taskbar { display:flex; border-top:1px solid var(--sky-line); }
+  .seg { flex:1; min-width:0; display:flex; align-items:center; justify-content:center;
+         padding:8px 6px; color:var(--mut); border-right:1px solid var(--sky-line); position:relative; }
+  .seg:last-child { border-right:none; }
+  .seg:first-child { border-bottom-left-radius:12px; }
+  .seg:last-child  { border-bottom-right-radius:12px; }
+  .seg .lbl { font-size:12px; min-width:0; max-width:100%; text-align:center; line-height:1.25;
+              display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .seg.ok  { background:rgba(15,157,88,.10); color:var(--ok); }
+  .seg.bad { background:#fff1f0; color:var(--bad); }
+  .seg.act { flex:0 0 auto; padding:8px 16px; background:var(--blue); color:#fff; font-weight:600; cursor:pointer; }
+  .seg.act:hover { background:var(--blue-deep); }
+  body.checking .seg.act { pointer-events:none; opacity:.55; }
+  .seg[data-tip]:hover::after { content:attr(data-tip); position:absolute; left:50%; bottom:100%;
+         transform:translateX(-50%); margin-bottom:9px; background:var(--navy); color:#fff;
+         padding:6px 10px; border-radius:8px; font-size:12px; line-height:1.35; text-align:left;
+         width:max-content; max-width:220px; white-space:normal; z-index:6;
+         box-shadow:0 6px 18px rgba(6,33,79,.25); }
+  .seg[data-tip]:hover::before { content:''; position:absolute; left:50%; bottom:100%;
+         transform:translateX(-50%); margin-bottom:3px; border:6px solid transparent;
+         border-top-color:var(--navy); z-index:6; }
   /* рабочая зона */
   .top { flex:1.1; min-height:0; display:flex; }
   .filetree { width:190px; border-right:1px solid var(--sky-line); display:flex; flex-direction:column;
@@ -83,24 +105,26 @@
               border-top:1px solid var(--sky-line); border-bottom:1px solid var(--sky-line); }
   .termhead code { color:var(--blue-deep); }
   .term-wrap { flex:1.1; min-height:0; }
-  iframe.term { width:100%; height:100%; border:0; background:#000; }
+  iframe.term { display:block; width:100%; height:100%; border:0; background:#000; }
 </style>
 </head>
 <body>
 <header>
   <h1>Тренажёр лаб</h1>
-  <select id="lab" title="выбор лабы"></select>
-  <input id="isu" placeholder="номер ИСУ">
-  <button class="ghost" id="saveIsu">Задать</button>
+  <a class="home" href="https://filberol.github.io/course_in_container/" target="_blank" rel="noopener">Главная ↗</a>
+  <select id="lab" title="Выбор лабораторной"></select>
+  <input id="isu" title="Вариант" placeholder="Вариант">
+  <button class="ghost" id="saveIsu">Сохранить</button>
   <span class="sp"></span>
   <span id="gate" class="badge">Не проверено</span>
   <button id="check">Проверить</button>
+  <button id="stop" style="display:none;background:var(--orange)">Стоп</button>
 </header>
 <div class="cluster" id="cluster"><span class="dot"></span>Кластер: проверяю…</div>
 <main>
   <section class="instr">
     <div class="params" id="params"></div>
-    <details class="log"><summary>Лог проверки</summary><pre id="log">Выбери лабу, укажи ИСУ и нажми «Проверить».</pre></details>
+    <details class="log"><summary>Лог проверки</summary><pre id="log">Выбери лабу, укажи вариант и нажми «Проверить».</pre></details>
     <div id="tasks"></div>
   </section>
   <section class="work">
@@ -204,14 +228,17 @@ function renderParams(p) {
     .filter(([k]) => k !== 'ISU' && k !== 'BREAKFIX_ID')
     .map(([k, v]) => `<span>${k}: <b>${v}</b></span>`).join('');
 }
-function renderTasks(tasks, labels) {
+function renderTasks(tasks, labels, hints) {
   $('#tasks').innerHTML = tasks.map(t => `
     <div class="task">
-      <h3>${t.title}</h3>
-      <p>${t.body}</p>
-      ${t.hints.map((h, i) => `<details class="hint"><summary>Подсказка ${i+1}</summary><p>${h}</p></details>`).join('')}
-      <div class="chips">${t.checks.map(c => `<span class="chip" id="${cid(c)}">${labels[c] || c}</span>`).join('')}</div>
-      <button class="ghost mini" onclick="checkSuite('${t.id}')">Проверить это задание</button>
+      <div class="body">
+        <h3>${t.title}</h3>
+        <p>${t.body}</p>
+      </div>
+      <div class="taskbar">
+        ${t.checks.map(c => `<div class="seg" id="${cid(c)}" data-tip="${(hints[c]||labels[c]||c).replace(/"/g,'&quot;')}"><span class="lbl">${labels[c] || c}</span></div>`).join('')}
+        <div class="seg act" onclick="checkSuite('${t.id}')">Проверить</div>
+      </div>
     </div>`).join('');
 }
 function renderLabs(labs, active) {
@@ -223,7 +250,7 @@ async function load() {
   renderLabs(s.labs, s.lab);
   $('#isu').value = s.isu || '';
   renderParams(s.params);
-  renderTasks(s.tasks, s.labels);
+  renderTasks(s.tasks, s.labels, s.hints || {});
   $('#termhead').innerHTML = s.terminal_hint
     ? 'Терминал (в рабочей директории): <code>' + s.terminal_hint + '</code>'
     : 'Терминал — кластер и манифесты поднимаешь сам.';
@@ -264,14 +291,16 @@ function applyResults(res) {
   if (!res) return;
   for (const [id, ok] of Object.entries(res)) {
     const el = document.getElementById(cid(id));
-    if (el) el.className = 'chip ' + (ok ? 'ok' : 'bad');
+    if (el) el.className = 'seg ' + (ok ? 'ok' : 'bad');
   }
 }
 async function checkRun(suite) {
   const r = await fetch('/api/check', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(suite ? { suite } : {}) });
   if (!r.ok) { const e = await r.json(); $('#log').textContent = e.error || 'ошибка'; document.querySelector('details.log').open = true; return; }
   document.querySelectorAll('button').forEach(b => b.disabled = true);
-  if (!suite) { setGate(null); document.querySelectorAll('.chip').forEach(c => c.className = 'chip'); }
+  document.body.classList.add('checking');
+  $('#stop').disabled = false; $('#stop').style.display = '';
+  if (!suite) { setGate(null); document.querySelectorAll('.seg:not(.act)').forEach(c => c.className = 'seg'); }
   document.querySelector('details.log').open = true;
   clearInterval(poll);
   poll = setInterval(async () => {
@@ -279,11 +308,12 @@ async function checkRun(suite) {
     $('#log').textContent = st.log.join('\n');
     $('#log').scrollTop = $('#log').scrollHeight;
     applyResults(st.results);
-    if (st.done) { clearInterval(poll); document.querySelectorAll('button').forEach(b => b.disabled = false); if (!suite) setGate(st.gate); }
+    if (st.done) { clearInterval(poll); document.querySelectorAll('button').forEach(b => b.disabled = false); document.body.classList.remove('checking'); $('#stop').style.display = 'none'; if (!suite) setGate(st.gate); }
   }, 1500);
 }
 window.checkSuite = checkRun;
 $('#check').onclick = () => checkRun(null);
+$('#stop').onclick = async () => { $('#stop').disabled = true; await fetch('/api/check/stop', { method:'POST' }); };
 
 load();
 refreshCluster();

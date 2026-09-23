@@ -6,4 +6,4 @@ trainer/.state.json
 **/.scorecard.tap
 **/scorecard.json
 **/workdir/
-**/solution/rendered/
+**/solution/

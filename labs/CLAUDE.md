@@ -42,14 +42,14 @@ labs/
     serve.sh setup.sh
   lab2/              # ПАКЕТ ЛАБЫ (самодостаточный)
     seed.py          #   params(isu) + CLI (--env/--get); детерминированно от ИСУ
-    content.py       #   TITLE, TERMINAL_HINT, TASKS, CHECK_LABELS
-    Makefile         #   seed/check/check-suite/render/selftest/clean
+    content.py       #   TITLE, TERMINAL_HINT, TASKS, CHECK_LABELS, HINTS
+    Makefile         #   seed/check/check-suite/clean
     checks/lib.sh    #   хелперы (kc, _to, inpod, cast_vote, read_count, lb_hostnames)
     checks/NN_*.bats #   контракты по заданиям (TAP, ASCII-имена)
     scaffold/        #   шаблон рабочей директории (дерево файлов-заготовок, комментарии)
     workdir/         #   рабочая зона студента: засев из scaffold/ с подстановкой сида (в .gitignore)
-    solution/        #   [преподаватель] эталон по сиду + render.py; НЕ входит в шаблон студента
     README.md
+    # эталона решения в репо НЕТ — иначе студент просто применит его. solution/ в .gitignore.
   lab3/ …            # следующая лаба — такой же пакет
 ```
 
@@ -82,15 +82,18 @@ labs/
   Детерминированно `sha256(isu + SALT)`, механика открытая. Обязательно: canary-токен
   (якорь личности) + outcome-параметры + `BREAKFIX_ID`. `NS` — namespace для статуса.
 - **`content.py`** — `TITLE` (для селектора), `TERMINAL_HINT` (команды поднятия
-  кластера, показываются в терминал-хедере), `TASKS` (id, title, body, hints[],
-  checks[]), `CHECK_LABELS` (id контракта → ярлык чипа). `${NS}` и т.п. — из сида.
+  кластера, показываются в терминал-хедере), `TASKS` (id, title, body в инфинитиве,
+  checks[]), `CHECK_LABELS` (id контракта → короткий ярлык сегмента), `HINTS`
+  (id контракта → подсказка в бабле над сегментом). `${NS}` и т.п. — из сида.
 - **`Makefile`** — цели `check` / `check-suite SUITE=… ISU=…` (пишут `.scorecard.tap`
-  в корне лабы), `render`, `selftest`. Движок вызывает их через `make -C labN`.
+  в корне лабы). Движок вызывает их через `make -C labN`.
 - **`scaffold/`** — дерево-шаблон рабочей директории (файлы только с комментариями,
   без решения). Движок засевает из него `workdir/` с подстановкой сида; студент правит
   дерево (создание/удаление файлов и папок) в редакторе, терминал стартует в `workdir/`.
-- **`solution/`** — шаблон по сиду + `render.py`; `make selftest` = render+apply+check.
-  Способ выбирать намеренно method-blind. **Вырезается из студенческого шаблона.**
+
+**Эталона решения в репозитории нет** (иначе студент просто применит его). Для
+проверки лабы автор поднимает своё корректное решение **локально** (каталог
+`solution/` в `.gitignore`, не коммитится): `kubectl apply` → `make check`.
 
 Движок (`trainer/`) при добавлении лабы **не меняется**.
 
@@ -100,14 +103,14 @@ labs/
 2. `seed.py`: новый `SALT` + параметры слоя + canary + `BREAKFIX_ID`.
 3. `content.py`: `TITLE`, `TERMINAL_HINT`, `TASKS`/`CHECK_LABELS` (по-русски).
 4. `checks/NN_*.bats`: контракты (ASCII, method-blind, foreground-хелперы).
-5. `scaffold/`: дерево-шаблон рабочей директории. `solution/`: эталон по сиду;
-   `make selftest` должен пройти end-to-end зелёным.
+5. `scaffold/`: дерево-шаблон рабочей директории. Проверь лабу локальным решением
+   (не коммить его): `kubectl apply` → `make check` должен пройти зелёным.
 6. Handout студента в `Лабораторные/…md` в формате Лаб 1; §4 — поток тренажёра.
 7. Готово: лаба появляется в селекторе тренажёра автоматически.
 
 ## Проверка перед сдачей лабы
 
-- `make selftest ISU=<любой>` зелёный end-to-end на живом кластере.
+- Локальное корректное решение (не в репо) → `make check ISU=<любой>` зелёный end-to-end.
 - Ни одного `&` в `checks/`. Все имена тестов ASCII.
 - `make trainer` (из `labs/`) → лаба видна в селекторе, «проверить это задание»
   краснеет/зеленеет, лог стримит по контрактам.

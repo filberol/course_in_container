@@ -2,7 +2,7 @@
 """Глобальный тренажёр лаб. Один движок обслуживает все labs/labN/.
 
 Лаба — самодостаточный пакет: seed.py (params), content.py (TITLE/TASKS/…),
-checks/*.bats, scaffold/ (шаблон рабочей директории), solution/, Makefile.
+checks/*.bats, scaffold/ (шаблон рабочей директории), Makefile.
 Движок засевает рабочую директорию labN/workdir/ из scaffold/ (с подстановкой
 сида), даёт файловое дерево с созданием файлов/папок, гоняет контракты
 (`make -C labN`). Кластер студент поднимает сам в терминале (его cwd = workdir).
@@ -134,7 +134,7 @@ def tree(lab):
 
 
 # ---------- проверка (фоновый поток) ----------
-JOB = {"running": False, "log": [], "results": None, "gate": None, "done": False}
+JOB = {"running": False, "log": [], "results": None, "gate": None, "done": False, "pgid": None}
 
 
 def log(m):
@@ -145,6 +145,10 @@ def run(cmd, cwd, timeout=None):
     log("$ " + " ".join(cmd))
     p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          stdin=subprocess.DEVNULL, text=True, bufsize=1, start_new_session=True)
+    try:
+        JOB["pgid"] = os.getpgid(p.pid)   # чтобы /api/check/stop мог убить всю группу
+    except ProcessLookupError:
+        JOB["pgid"] = None
     killed = {"t": False}
 
     def _wd():
@@ -160,6 +164,7 @@ def run(cmd, cwd, timeout=None):
     for line in p.stdout:
         log(line.rstrip("\n"))
     p.wait()
+    JOB["pgid"] = None
     if timer:
         timer.cancel()
     if killed["t"]:
@@ -185,7 +190,7 @@ def suite_stem(lab, sid):
 
 
 def check_job(lab, isu, suite=None):
-    JOB.update(running=True, log=[], results=None, gate=None, done=False)
+    JOB.update(running=True, log=[], results=None, gate=None, done=False, pgid=None)
     d = lab_dir(lab)
     try:
         log("== Проверяю доступность кластера ==")
@@ -222,19 +227,19 @@ def index():
 def api_state():
     st = load_state()
     lab, isu = st["lab"], st["isu"]
-    p, tasks, labels, hint = {}, [], {}, ""
+    p, tasks, labels, hints, hint = {}, [], {}, {}, ""
     if lab:
         C = load_mod(lab, "content")
         p = load_mod(lab, "seed").params(isu) if isu else {}
         if isu:
             seed_workdir(lab, p)
             open(CURRENT, "w").write(workdir(lab))    # cwd терминала = workdir активной лабы
-        tasks = [{**t, "body": subst(t["body"], p),
-                  "hints": [subst(h, p) for h in t["hints"]]} for t in C.TASKS]
+        tasks = [{**t, "body": subst(t["body"], p)} for t in C.TASKS]
         labels = C.CHECK_LABELS
+        hints = {k: subst(v, p) for k, v in getattr(C, "HINTS", {}).items()}
         hint = subst(getattr(C, "TERMINAL_HINT", ""), p)
     return jsonify(lab=lab, labs=labs_list(), title=title(lab) if lab else "",
-                   isu=isu, params=(p or {}), tasks=tasks, labels=labels,
+                   isu=isu, params=(p or {}), tasks=tasks, labels=labels, hints=hints,
                    terminal_hint=hint, ttyd_port=int(os.environ.get("TTYD_PORT", "7681")))
 
 
@@ -337,6 +342,18 @@ def api_check():
 def api_check_status():
     return jsonify(running=JOB["running"], done=JOB["done"], log=JOB["log"],
                    results=JOB["results"], gate=JOB["gate"])
+
+
+@app.post("/api/check/stop")
+def api_check_stop():
+    if JOB["running"] and JOB.get("pgid"):
+        try:
+            os.killpg(JOB["pgid"], signal.SIGKILL)   # убить make/bats/kubectl разом
+        except ProcessLookupError:
+            pass
+        log("== Остановлено пользователем ==")
+        return jsonify(ok=True)
+    return jsonify(ok=False, error="нечего останавливать"), 400
 
 
 @app.get("/api/cluster")
